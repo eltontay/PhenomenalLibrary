@@ -1,6 +1,5 @@
 from flask import Flask, render_template
 from user.models import User
-
 app = Flask(__name__)
 
 
@@ -14,6 +13,6 @@ def dashboard():
     return render_template('dashboard.html')
 
 
-@app.route('/user/signup')
+@app.route('/user/signup', methods=['GET', 'POST'])
 def signup():
     return User().signup()

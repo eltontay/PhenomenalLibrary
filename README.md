@@ -12,9 +12,7 @@ Current plan :
 
 Flask : Micro web framework that can leverage on both MongoDB and MySQL. Furthermore, since the project requirement is Python, Flask would be the most suitable.
 
-Project Functional Requirements:
-
-FUNCTIONAL REQUIREMENTS
+PROJECT FUNCTIONAL REQUIREMENTS:
 
 The application must support both library lending transactions as well as the efficient management of book records. To facilitate the development of the application, the management has specified the following key functions that the application is expected to support.
 

@@ -8,7 +8,7 @@ class User:
         user = {
             "_id": "",
             "name": "",
-            "email": "",
+            "username": "",
             "password": ""
         }
 
