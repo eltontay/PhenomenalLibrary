@@ -1,11 +1,19 @@
-from flask import Flask
+from flask import Flask, render_template
+from user.models import User
+
 app = Flask(__name__)
 
 
-@app.route('/', methods=['GET', 'POST'])
-def hello_world():
-    return 'Hello World'
+@app.route('/')
+def home():
+    return render_template('home.html')
 
 
-if __name__ == '__main__':
-    app.run()
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
+
+
+@app.route('/user/signup')
+def signup():
+    return User().signup()
