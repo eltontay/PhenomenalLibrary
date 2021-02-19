@@ -16,3 +16,7 @@ def dashboard():
 @app.route('/user/signup', methods=['GET', 'POST'])
 def signup():
     return User().signup()
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
