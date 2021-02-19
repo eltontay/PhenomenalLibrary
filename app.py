@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from user.models import User
+
 app = Flask(__name__)
 
 
@@ -18,9 +18,12 @@ def library():
         pass
 
 
-@ app.route('/user/signup', methods=['GET', 'POST'])
+@app.route('/signup', methods=['POST'])
 def signup():
-    return User().signup()
+    if request.method == 'POST':
+        return render_template('signup.html')
+    else:
+        pass
 
 
 if __name__ == '__main__':
