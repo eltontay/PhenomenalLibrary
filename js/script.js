@@ -1,4 +1,4 @@
-$('form[name=signup_form').submit(function (e) {
+$('form[name=log_in').submit(function (e) {
   var $form = $(this);
   var $error = $form.find('.error');
   var data = $form.serialize();
