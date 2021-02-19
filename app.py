@@ -1,19 +1,24 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from user.models import User
 app = Flask(__name__)
 
 
 @app.route('/')
-def home():
-    return render_template('home.html')
+def login():
+    return render_template('login.html')
 
 
-@app.route('/dashboard')
-def dashboard():
-    return render_template('dashboard.html')
+@app.route('/library', methods=['POST'])
+def library():
+    if request.method == 'POST':
+        username = request.form['user']
+        password = request.form['pass']
+        return render_template('library.html')
+    else:
+        pass
 
 
-@app.route('/user/signup', methods=['GET', 'POST'])
+@ app.route('/user/signup', methods=['GET', 'POST'])
 def signup():
     return User().signup()
 
