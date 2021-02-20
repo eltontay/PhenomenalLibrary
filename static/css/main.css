@@ -34,6 +34,7 @@ input.form-control:focus {
 @media only screen and (max-width: 600px) {
     #loginCard {
         width: 100%; 
+        margin-top: 30%;
     }
     input.btn.btn-primary, input.form-control {
         width: 100%;
