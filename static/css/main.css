@@ -1,0 +1,22 @@
+#loginCard {
+    width: 60%;
+    margin: 5% auto;
+}
+input.btn.btn-primary {
+    width: 40;
+    width: 40%;
+    margin: auto;
+    background: #F6D55C;
+    border-color: #F6D55C;
+    color: black;
+}
+input.btn.btn-primary:hover {
+    background: #ffa600;
+    border-color: #ffa600;
+}
+
+@media only screen and (max-width: 600px) {
+    #loginCard {
+        width: 100%; 
+    }
+  }
