@@ -3,38 +3,38 @@
 <div class="card">
     <div class="card-header text-center">Sign Up</div>
     <div class="card-body">
-        <form>
+        <form action="/signupComplete" method="POST">
             <div class="form-row">
                 <div class="form-group col-md-6 mb-2">
-                    <label for="inputEmail4">Username</label>
-                    <input type="email" class="form-control" id="inputEmail4" placeholder="Email" />
+                    <label for="inputUsername">Username</label>
+                    <input type="email" class="form-control" name="username" id="inputUsername" placeholder="Email" />
                 </div>
                 <div class="form-group col-md-6 mb-2">
-                    <label for="inputPassword4">Password</label>
-                    <input type="password" class="form-control" id="inputPassword4" placeholder="Password" />
+                    <label for="inputPassword">Password</label>
+                    <input type="password" class="form-control" name="password" id="inputPassword" placeholder="Password" />
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group col-md-6 mb-2">
                     <label for="intputFirstName">First Name</label>
-                    <input type="name" class="form-control" id="inputFirstName" placeholder="Lundy" />
+                    <input type="name" class="form-control" name="firstname" id="inputFirstName" placeholder="Lundy" />
                 </div>
                 <div class="form-group col-md-6 mb-2">
                     <label for="inputLastName">Last Name</label>
-                    <input type="name" class="form-control" id="inputLastName" placeholder="Goh" />
+                    <input type="name" class="form-control" name="lastname" id="inputLastName" placeholder="Goh" />
                 </div>
             </div>
             <div class="form-group mb-2">
-                <label for="inputAddress">Address 1</label>
-                <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St" />
+                <label for="inputAddress1">Address 1</label>
+                <input type="text" class="form-control" name="address1" id="inputAddress1" placeholder="1234 Main St" />
             </div>
             <div class="form-group mb-2">
                 <label for="inputAddress2">Address 2</label>
-                <input type="text" class="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor" />
+                <input type="text" class="form-control" name="address2" id="inputAddress2" placeholder="Apartment, studio, or floor" />
             </div>
             <div class="form-group mb-2">
-                <label for="inputZip">Zip-Code</label>
-                <input type="text" class="form-control" id="inputZip" placeholder="123456" />
+                <label for="inputZip">Postal Code</label>
+                <input type="text" class="form-control" name="postal" id="postalCode" placeholder="123456" />
             </div>
     </div class="mb-2 row">
     <button type="submit" class="btn btn-primary">Submit!</button>
