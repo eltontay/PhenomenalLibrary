@@ -3,14 +3,14 @@
   <div class="card">
     <div class="card-body">
       <!--<h1 class="card-title text-center">Phenomenal Library</h1> -->
-      <img id="mainLogo" src="{{url_for('static', filename='images/tempLogo.png')}}" align="middle" />
+      <img class="mainLogo" src="{{url_for('static', filename='images/tempLogo.png')}}" align="middle" />
       <br />
       <!--<h2 class="card-subtitle text-center">Login</h2>-->
       <br />
       <form name="loginpage" method="POST" action="/library">
         <div class="mb-3 row">
           
-            <input type="username" name="user" class="form-control"  placeholder="Username" style="text-align:center;" />
+            <input type="username" name="user" class="form-control"  placeholder="Email" style="text-align:center;" />
           
         </div>
         <div class="mb-3 row">
