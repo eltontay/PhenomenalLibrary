@@ -1,5 +1,34 @@
 {% extends "base.html" %} {% block content %}
 
-<h1>You have successfully log in!</h1>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">The Phenomenal Library</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-link active" aria-current="page" href="{{ url_for('library')}}">Home</a>
+                <a class="nav-link " href="{{ url_for('account') }}">Account</a>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="jumbotron">
+    <h1 class="display-1 text-center">Hello!</h1>
+    <br />
+    <p class="text-center">Find your favourite book now!</p>
+    <br />
+</div>
+<nav class="navbar navbar-light bg-light">
+    <div class="container-fluid">
+        <form class="d-flex">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+    </div>
+</nav>
 
 {% endblock %}
+</div>
