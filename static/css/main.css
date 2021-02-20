@@ -35,4 +35,7 @@ input.form-control:focus {
     #loginCard {
         width: 100%; 
     }
+    input.btn.btn-primary, input.form-control {
+        width: 100%;
+    }
   }
