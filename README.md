@@ -2,6 +2,8 @@
 
 A phenomenal online library system
 
+To start : ./run
+
 Project Requirement :
 
 1. MySQL

@@ -2,7 +2,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">The Phenomenal Library</a>
+        <a class="navbar-brand" href="{{ url_for('library')}}">The Phenomenal Library</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
             aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -11,6 +11,7 @@
             <div class="navbar-nav">
                 <a class="nav-link active" aria-current="page" href="{{ url_for('library')}}">Home</a>
                 <a class="nav-link " href="{{ url_for('account') }}">Account</a>
+                <a class="nav-link " href="{{ url_for('login') }}">Log Out</a>
             </div>
         </div>
     </div>
