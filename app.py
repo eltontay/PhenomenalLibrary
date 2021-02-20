@@ -1,13 +1,7 @@
-import sqlite3
+import sqlite3 as sql
 from flask import Flask, render_template, request, url_for
 
-conn = sqlite3.connect('database.db')
-print "Opened database successfully!"
 
-conn.execute('CREATE TABLE user (username VARCHAR(20), password VARCHAR(20), firstname TEXT, lastname TEXT, address1 VARCHAR(40), address2 VARCHAR(40), postal INTEGER) ')
-print "Table created successfully!"
-
-conn.close()
 app = Flask(__name__)
 
 # trial comment for git push
@@ -45,12 +39,14 @@ def signupComplete():
             address2 = request.form['address2']
             postal = request.form['postal']
 
+            user = (username, password, firstName,
+                    lastName, address1, address2, postal)
+
             with sql.connect("database.db") as con:
                 cur = con.cursor()
-                cur.execute(
-                    "INSERT INTO user (username,password,firstname,lastname,address1,address2,postal) VALUES (?,?,?,?,?,?,?), (username,password,firstname,lastname,address1,address2,postal) ")
-                con.commit()
-                msg = "User Successfully Added"
+                cur.execute("INSERT INTO user VALUES (?,?,?,?,?,?,?)", user)
+            con.commit()
+            msg = "Record successfully added"
         except:
             con.rollback()
             msg = "error in insert operation"
