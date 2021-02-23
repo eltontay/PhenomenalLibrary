@@ -1,10 +1,11 @@
-import sqlite3 as sql
-from flask import Flask, render_template, request, url_for
+from flask import Flask,flash, render_template, request, url_for
+import sqlite3
 
-
+    
 app = Flask(__name__)
 
-# trial comment for git push
+conn = sqlite3.connect('database.db')
+print("Opened database successfully")
 
 
 @app.route('/')
@@ -31,23 +32,44 @@ def account():
 def signupComplete():
     if request.method == 'POST':
         try:
-            username = request.form['username']
-            password = request.form['password']
-            firstName = request.form['firstname']
-            lastName = request.form['lastname']
-            address1 = request.form['address1']
-            address2 = request.form['address2']
-            postal = request.form['postal']
+            userEmail = request.form['userEmail']
+            userPassword = request.form['userPassword']
+            userFirstName = request.form['userFirstName']
+            userLastName = request.form['userLastName']
+            userPhoneNum = request.form['userPhoneNum']
+            userStreetName = request.form['userStreetName']
+            userBlockNum = request.form['userBlockNum']
+            userStreetName = request.form['userStreetName']
+            userPostalCode = request.form['userPostalCode']
 
-            user = (username, password, firstName,
-                    lastName, address1, address2, postal)
+            userNewEntry = (userEmail,
+                            userPassword,
+                            userFirstName,
+                            userLastName,
+                            userPhoneNum,
+                            userStreetName,
+                            userBlockNum,
+                            userPostalCode)
 
-            with sql.connect("database.db") as con:
-                cur = con.cursor()
-                cur.execute("INSERT INTO user VALUES (?,?,?,?,?,?,?)", user)
-            con.commit()
+            print(userNewEntry)
             msg = "Record successfully added"
+
+            with sqlite3.connect("database.db") as con:
+                cur = con.cursor()
+                SQL_command = "INSERT INTO usersTable (userEmail,"\
+                                                    "userPassword,"\
+                                                    "userFirstName,"\
+                                                    "userLastName,"\
+                                                    "userPhoneNum,"\
+                                                    "userStreetName,"\
+                                                    "userBlockNum,"\
+                                                    "userPostalCode) VALUES (?,?,?,?,?,?,?,?)"
+                print(SQL_command)
+                cur.execute(SQL_command, userNewEntry)
+            con.commit()
+                
         except:
+            print("uh oh")
             con.rollback()
             msg = "error in insert operation"
 
@@ -55,6 +77,6 @@ def signupComplete():
             return render_template("signupComplete.html", msg=msg)
             con.close()
 
-
+conn.close()
 if __name__ == '__main__':
     app.run(debug=True)
