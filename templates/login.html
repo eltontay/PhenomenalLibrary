@@ -7,16 +7,25 @@
       <br />
       <!--<h2 class="card-subtitle text-center">Login</h2>-->
       <br />
-      <form name="loginpage" method="POST" action="/library">
+      <form name="loginpage" action="{{ url_for('login')}}" method="POST">
         <div class="mb-3 row">
           
-            <input type="username" name="user" class="form-control"  placeholder="Email" style="text-align:center;" />
+            <input type="username" 
+                   name="userEmail" 
+                   id="userEmail"
+                   class="form-control"  
+                   placeholder="Email" 
+                   style="text-align:center;" />
           
         </div>
         <div class="mb-3 row">
-         
-         
-            <input type="password" name="pass" class="form-control" placeholder="Password" style="text-align:center;" />
+                 
+            <input type="password" 
+                   name="userPassword" 
+                   id="userPassword"
+                   class="form-control" 
+                   placeholder="Password" 
+                   style="text-align:center;" />
           
         </div>
         <div class="mb-3 row">
@@ -28,21 +37,13 @@
           />
         </div>
       </form>
-      <form name="signuppage" method="POST" action="/signup">
+      
        
         <p class="card-subtitle text-center">
           Don't have an account? <a href="/signup">Sign up here!</a>
         </p>
         <br />
-        <!--<div class="mb-3 row">
-          <input
-            type="submit"
-            value="Sign Up"
-            class="btn btn-primary"
-            name="sign"
-          />
-        </div> -->
-      </form>
+
     </div>
   </div>
 </div>

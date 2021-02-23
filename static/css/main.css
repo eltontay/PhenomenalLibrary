@@ -11,6 +11,12 @@ input.btn.btn-primary {
     border-color: #F6D55C;
     color: black;
 }
+ul.flashes {
+    text-align: center;
+    background-color: #F6D55C;
+    padding: 1%;
+    list-style: none;
+}
 #signUpLogo{
 width:10%; margin: 0% 45%;
 }

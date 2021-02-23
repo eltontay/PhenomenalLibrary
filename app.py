@@ -1,38 +1,77 @@
-from flask import Flask,flash, render_template, request, url_for
+from flask import Flask, session, redirect, flash, render_template, request, url_for
+from markupsafe import escape
 import sqlite3
+
+
+##Possible improvements
 
     
 app = Flask(__name__)
 
+#Secret key to some random Bytes
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+
+# Database configuration
 conn = sqlite3.connect('database.db')
 print("Opened database successfully")
 
 
-@app.route('/')
-def login():
-    return render_template('login.html')
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    # return render_template('login.html')
+    if request.method == 'POST':
+        try:
+            userEmail = request.form['userEmail']
+            userPassword = request.form['userPassword']
+            print(userEmail)
+            with sqlite3.connect("database.db") as con:
+                cur = con.cursor()
+                SQL_command = "SELECT userID, userPassword FROM usersTable WHERE userEmail = '" + str(userEmail)+ "'"
+                cur.execute(SQL_command)
+                rows = cur.fetchall()
+                actualpassword = ""
+                sessionID = ""
+                for row in rows:
+                    sessionID = row[0]
+                    actualpassword = row[1]
+                if str(actualpassword) == str(userPassword):
+                    session['userID'] = sessionID
+                    return redirect(url_for('library'))
+                else:
+                    flash("wrong password or username")
+        except:
+            flash(message="Fail")
+    return render_template('login.html')
+        
 
 @app.route('/library', methods=['GET', 'POST'])
+@app.route('/')
 def library():
-    return render_template('library.html')
-
-
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    return render_template('signup.html')
-
+    if 'userID' in session:
+        return render_template('library.html')
+    return redirect(url_for('login'))
 
 @app.route('/account', methods=['GET', 'POST'])
 def account():
     return render_template('account.html')
 
-
-@app.route('/signupComplete', methods=['GET', 'POST'])
-def signupComplete():
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
     if request.method == 'POST':
         try:
             userEmail = request.form['userEmail']
+            # check if the email is in use before
+            with sqlite3.connect("database.db") as con:
+                cur = con.cursor()
+                SQL_command = "SELECT userID FROM usersTable WHERE userEmail = '" + str(userEmail)+ "'"
+                cur.execute(SQL_command)
+                rows = cur.fetchall()
+                sessionID = ""
+                for row in rows:
+                    sessionID = row[0]
+                if sessionID != "":
+                    quit()
             userPassword = request.form['userPassword']
             userFirstName = request.form['userFirstName']
             userLastName = request.form['userLastName']
@@ -67,16 +106,14 @@ def signupComplete():
                 print(SQL_command)
                 cur.execute(SQL_command, userNewEntry)
             con.commit()
+            return redirect(url_for('login'))
                 
         except:
-            print("uh oh")
-            con.rollback()
-            msg = "error in insert operation"
+            flash("Email in use already!")
 
-        finally:
-            return render_template("signupComplete.html", msg=msg)
-            con.close()
+        con.close()
+    return render_template('signup.html')
 
-conn.close()
+
 if __name__ == '__main__':
     app.run(debug=True)
