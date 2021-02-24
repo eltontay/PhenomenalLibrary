@@ -1,21 +1,24 @@
 from flask import Flask, session, redirect, flash, render_template, request, url_for
 from markupsafe import escape
 import sqlite3
+import pymongo
 
-
-##Possible improvements
-
-    
 app = Flask(__name__)
-
-#Secret key to some random Bytes
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 # Database configuration
 conn = sqlite3.connect('database.db')
-print("Opened database successfully")
+print("Opened SQLdatabase successfully")
+# my trial server
+client = pymongo.MongoClient("mongodb+srv://admin:admin@phenomcluster.1j72v.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+db = client["phenomLibrary"]
+collection = db["libraryBooks"]
 
 
+@app.route('/logout', methods=['GET', 'POST'])
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -24,7 +27,8 @@ def login():
         try:
             userEmail = request.form['userEmail']
             userPassword = request.form['userPassword']
-            print(userEmail)
+            if userEmail == "" or userPassword == "":
+                quit()
             with sqlite3.connect("database.db") as con:
                 cur = con.cursor()
                 SQL_command = "SELECT userID, userPassword FROM usersTable WHERE userEmail = '" + str(userEmail)+ "'"
@@ -41,7 +45,7 @@ def login():
                 else:
                     flash("wrong password or username")
         except:
-            flash(message="Fail")
+           flash("Email address of Password is empty!")
     return render_template('login.html')
         
 
