@@ -10,7 +10,8 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 conn = sqlite3.connect('database.db')
 print("Opened SQLdatabase successfully")
 # my trial server
-client = pymongo.MongoClient("mongodb+srv://admin:admin@phenomcluster.1j72v.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+client = pymongo.MongoClient(
+    "mongodb+srv://admin:admin@phenomcluster.1j72v.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
 db = client["phenomLibrary"]
 collection = db["libraryBooks"]
 
@@ -20,6 +21,8 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+
+@app.route('/')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     # return render_template('login.html')
@@ -31,7 +34,8 @@ def login():
                 quit()
             with sqlite3.connect("database.db") as con:
                 cur = con.cursor()
-                SQL_command = "SELECT userID, userPassword FROM usersTable WHERE userEmail = '" + str(userEmail)+ "'"
+                SQL_command = "SELECT userID, userPassword FROM usersTable WHERE userEmail = '" + \
+                    str(userEmail) + "'"
                 cur.execute(SQL_command)
                 rows = cur.fetchall()
                 actualpassword = ""
@@ -45,20 +49,21 @@ def login():
                 else:
                     flash("wrong password or username")
         except:
-           flash("Email address of Password is empty!")
+            flash("Email address of Password is empty!")
     return render_template('login.html')
-        
+
 
 @app.route('/library', methods=['GET', 'POST'])
-@app.route('/')
 def library():
     if 'userID' in session:
         return render_template('library.html')
     return redirect(url_for('login'))
 
+
 @app.route('/account', methods=['GET', 'POST'])
 def account():
     return render_template('account.html')
+
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -68,7 +73,8 @@ def signup():
             # check if the email is in use before
             with sqlite3.connect("database.db") as con:
                 cur = con.cursor()
-                SQL_command = "SELECT userID FROM usersTable WHERE userEmail = '" + str(userEmail)+ "'"
+                SQL_command = "SELECT userID FROM usersTable WHERE userEmail = '" + \
+                    str(userEmail) + "'"
                 cur.execute(SQL_command)
                 rows = cur.fetchall()
                 sessionID = ""
@@ -100,18 +106,18 @@ def signup():
             with sqlite3.connect("database.db") as con:
                 cur = con.cursor()
                 SQL_command = "INSERT INTO usersTable (userEmail,"\
-                                                    "userPassword,"\
-                                                    "userFirstName,"\
-                                                    "userLastName,"\
-                                                    "userPhoneNum,"\
-                                                    "userStreetName,"\
-                                                    "userBlockNum,"\
-                                                    "userPostalCode) VALUES (?,?,?,?,?,?,?,?)"
+                    "userPassword,"\
+                    "userFirstName,"\
+                    "userLastName,"\
+                    "userPhoneNum,"\
+                    "userStreetName,"\
+                    "userBlockNum,"\
+                    "userPostalCode) VALUES (?,?,?,?,?,?,?,?)"
                 print(SQL_command)
                 cur.execute(SQL_command, userNewEntry)
             con.commit()
             return redirect(url_for('login'))
-                
+
         except:
             flash("Email in use already!")
 
