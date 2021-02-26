@@ -66,7 +66,8 @@ def library():
 @ app.route('/results', methods=['GET', 'POST'])
 def results():
     bookSearch = request.form['bookSearch']
-    return render_template('results.html', bookSearch=bookSearch)
+    testing = collection.find_one({'title': bookSearch})
+    return render_template('results.html', bookSearch=bookSearch, testing=testing)
 
 
 @ app.route('/account', methods=['GET', 'POST'])
