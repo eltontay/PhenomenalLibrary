@@ -63,18 +63,18 @@ def library():
     return redirect(url_for('login'))
 
 
-@app.route('/results/<bookSearch>', methods=['GET', 'POST'])
-def results(bookSearch):
-    flash("testing " + str(bookSearch))
+@ app.route('/results', methods=['GET', 'POST'])
+def results():
+    bookSearch = request.form['bookSearch']
     return render_template('results.html', bookSearch=bookSearch)
 
 
-@app.route('/account', methods=['GET', 'POST'])
+@ app.route('/account', methods=['GET', 'POST'])
 def account():
     return render_template('account.html')
 
 
-@app.route('/signup', methods=['GET', 'POST'])
+@ app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         try:
@@ -114,14 +114,14 @@ def signup():
 
             with sqlite3.connect("database.db") as con:
                 cur = con.cursor()
-                SQL_command = "INSERT INTO usersTable (userEmail,"\
-                    "userPassword,"\
-                    "userFirstName,"\
-                    "userLastName,"\
-                    "userPhoneNum,"\
-                    "userStreetName,"\
-                    "userBlockNum,"\
-                    "userPostalCode) VALUES (?,?,?,?,?,?,?,?)"
+                SQL_command = "INSERT INTO usersTable (userEmail,"
+                "userPassword,"
+                "userFirstName,"
+                "userLastName,"
+                "userPhoneNum,"
+                "userStreetName,"
+                "userBlockNum,"
+                "userPostalCode) VALUES (?,?,?,?,?,?,?,?)"
                 print(SQL_command)
                 cur.execute(SQL_command, userNewEntry)
             con.commit()
