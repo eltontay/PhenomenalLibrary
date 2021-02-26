@@ -57,7 +57,16 @@ def login():
 def library():
     if 'userID' in session:
         return render_template('library.html')
+    if request.method == 'POST':
+        bookSearch = request.form['bookSearch']
+        return redirect(url_for('results', bookSearch=bookSearch))
     return redirect(url_for('login'))
+
+
+@app.route('/results/<bookSearch>', methods=['GET', 'POST'])
+def results(bookSearch):
+    flash("testing " + str(bookSearch))
+    return render_template('results.html', bookSearch=bookSearch)
 
 
 @app.route('/account', methods=['GET', 'POST'])

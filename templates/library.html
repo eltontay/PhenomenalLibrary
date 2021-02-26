@@ -47,20 +47,20 @@
   <div class="container-fluid">
     <form
       class="mx-2 my-auto d-inline w-100"
-      name="bookresults"
       method="POST"
-      action="/bookresults"
+      action="{{ url_for('results', bookSearch=bookSearch)}}"
     >
-      <div class="row">
+      <div class="mb-2 row">
         <input
           class="form-control text-center"
           type="search"
           placeholder="Search"
           aria-label="Search"
+          name="bookSearch"
         />
       </div>
-      <div class="row">
-        <button class="btn btn-outline-success text-center" type="submit">
+      <div class="mb-2 row">
+        <button class="btn btn-primary form-control" type="submit">
           Search
         </button>
       </div>
