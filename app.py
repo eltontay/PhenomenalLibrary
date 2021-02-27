@@ -95,6 +95,8 @@ def results():
                 }
             }
         }])
+    for results in testing:
+        print(results['title'])
     return render_template('results.html', bookSearch=bookSearch, testing=testing)
 
 
