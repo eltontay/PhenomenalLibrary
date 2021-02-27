@@ -66,7 +66,35 @@ def library():
 @ app.route('/results', methods=['GET', 'POST'])
 def results():
     bookSearch = request.form['bookSearch']
-    testing = collection.find_one({'title': bookSearch})
+    testing = collection.aggregate([
+        {
+            '$search': {
+                'compound': {
+                    'should': [
+                        {
+                            'text': {
+                                'query': bookSearch,
+                                'path': [
+                                    'title'
+                                ],
+                                'score': {
+                                    'boost': {
+                                        'value': 5
+                                    }
+                                }
+                            }
+                        }, {
+                            'text': {
+                                'query': bookSearch,
+                                'path': [
+                                    'isbn', 'authors', 'categories', 'longDescription'
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        }])
     return render_template('results.html', bookSearch=bookSearch, testing=testing)
 
 
