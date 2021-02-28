@@ -1,25 +1,6 @@
 {% extends "base.html" %} {% block content %}
 
 <h1>Tis da search results for {{bookSearch}}</h1>
-<table style="margin-left: 20px">
-  <!-- Table headers -->
-  <th>
-    <tr style="color: green">
-      <td>Book ID</td>
-      <td>Title</td>
-    </tr>
-  </th>
-
-  <!-- For loop logic of jinja template -->
-  {%for i in testing%}
-
-  <!-- table rows -->
-  <tr>
-    <td>{{i}}</td>
-    <td>{{i}}</td>
-
-    {%endfor%}
-  </tr>
-</table>
-
-{% endblock %}
+{% for i in testing %}
+<li>{{ i['title'] }}</li>
+{% endfor %} {% endblock %}

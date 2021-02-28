@@ -66,7 +66,7 @@ def library():
 @ app.route('/results', methods=['GET', 'POST'])
 def results():
     bookSearch = request.form['bookSearch']
-    testing = collection.aggregate([
+    testing = list(collection.aggregate([
         {
             '$search': {
                 'compound': {
@@ -94,7 +94,7 @@ def results():
                     ]
                 }
             }
-        }])
+        }]))
     for results in testing:
         print(results['title'])
     return render_template('results.html', bookSearch=bookSearch, testing=testing)
