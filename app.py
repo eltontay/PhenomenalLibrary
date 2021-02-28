@@ -63,7 +63,7 @@ def library():
     return redirect(url_for('login'))
 
 
-@ app.route('/results', methods=['GET', 'POST'])
+@ app.route('/library/results', methods=['GET', 'POST'])
 def results():
     bookSearch = request.form['bookSearch']
     testing = list(collection.aggregate([
@@ -95,8 +95,6 @@ def results():
                 }
             }
         }]))
-    for results in testing:
-        print(results['title'])
     return render_template('results.html', bookSearch=bookSearch, testing=testing)
 
 
