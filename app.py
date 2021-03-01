@@ -11,7 +11,7 @@ conn = sqlite3.connect('database.db')
 print("Opened SQLdatabase successfully")
 # my trial server
 client = pymongo.MongoClient(
-    "mongodb+srv://admin:admin@phenomcluster.1j72v.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    "mongodb+srv://admin:admin@phenomcluster.1j72v.mongodb.net/myFirstDatabase")
 db = client["phenomLibrary"]
 collection = db["libraryBooks"]
 
