@@ -16,11 +16,13 @@
       <td>{{i['shortDescription']}}</td>
       <td>{% if i['available']%} Yes {% else %} No {% endif %}</td>
       <td>
-        {% if i['available']%}
-        <button type="submit" class="btn btn-primary form-control">
-          Reserve
-        </button>
-        {% endif %}
+        <form action="{{ url_for('reservationSuccess')}}" method="POST">
+          {% if i['available']%}
+          <button type="submit" class="btn btn-primary form-control">
+            Reserve
+          </button>
+          {% endif %}
+        </form>
       </td>
     </tr>
     {% endfor %}

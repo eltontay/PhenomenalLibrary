@@ -63,7 +63,7 @@ def library():
     return redirect(url_for('login'))
 
 
-@ app.route('/library/results', methods=['GET', 'POST'])
+@app.route('/library/results', methods=['GET', 'POST'])
 def results():
     bookSearch = request.form['bookSearch']
     testing = list(collection.aggregate([
@@ -98,12 +98,17 @@ def results():
     return render_template('results.html', bookSearch=bookSearch, testing=testing)
 
 
-@ app.route('/account', methods=['GET', 'POST'])
+@app.route('/reservationSuccess', methods=['GET', 'POST'])
+def reservationSuccess():
+    return render_template('reservationSuccess.html')
+
+
+@app.route('/account', methods=['GET', 'POST'])
 def account():
     return render_template('account.html')
 
 
-@ app.route('/signup', methods=['GET', 'POST'])
+@app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         try:
