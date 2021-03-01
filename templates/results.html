@@ -6,7 +6,6 @@
       <th>Title</th>
       <th style="width: 60%">Description</th>
       <th>Availability</th>
-      <th>Reserve</th>
     </tr>
   </thead>
   <tbody>
@@ -15,6 +14,14 @@
       <td>{{i['_id']}}</td>
       <td>{{i['title']}}</td>
       <td>{{i['shortDescription']}}</td>
+      <td>{% if i['available']%} Yes {% else %} No {% endif %}</td>
+      <td>
+        {% if i['available']%}
+        <button type="submit" class="btn btn-primary form-control">
+          Reserve
+        </button>
+        {% endif %}
+      </td>
     </tr>
     {% endfor %}
   </tbody>
