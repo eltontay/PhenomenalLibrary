@@ -18,7 +18,12 @@
       <td>
         <form action="{{ url_for('reservationSuccess')}}" method="POST">
           {% if i['available']%}
-          <button type="submit" class="btn btn-primary form-control">
+          <button
+            value="{{i['title']}}"
+            name="title"
+            type="submit"
+            class="btn btn-primary form-control"
+          >
             Reserve
           </button>
           {% endif %}
