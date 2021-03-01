@@ -98,10 +98,16 @@ def results():
     return render_template('results.html', bookSearch=bookSearch, testing=testing)
 
 
-@app.route('/reservationSuccess', methods=['GET', 'POST'])
+@app.route('/library/results/reservationSuccess', methods=['GET', 'POST'])
 def reservationSuccess():
     title = request.form['title']
     return render_template('reservationSuccess.html', title=title)
+
+
+@app.route('/library/results/borrowSuccess', methods=['GET', 'POST'])
+def borrowSuccess():
+    title = request.form['title']
+    return render_template('borrowSuccess.html', title=title)
 
 
 @app.route('/account', methods=['GET', 'POST'])

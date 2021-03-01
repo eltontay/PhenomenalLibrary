@@ -15,9 +15,22 @@
       <td>{{i['title']}}</td>
       <td>{{i['shortDescription']}}</td>
       <td>{% if i['available']%} Yes {% else %} No {% endif %}</td>
+      {% if i['available'] %}
+      <td>
+        <form action="{{ url_for('borrowSuccess')}}" method="POST">
+          <button
+            value="{{i['title']}}"
+            name="title"
+            type="submit"
+            class="btn btn-primary form-control"
+          >
+            Borrow
+          </button>
+        </form>
+      </td>
+      {% else %}
       <td>
         <form action="{{ url_for('reservationSuccess')}}" method="POST">
-          {% if i['available']%}
           <button
             value="{{i['title']}}"
             name="title"
@@ -26,11 +39,10 @@
           >
             Reserve
           </button>
-          {% endif %}
         </form>
       </td>
     </tr>
-    {% endfor %}
+    {% endif %} {% endfor %}
   </tbody>
 </table>
 {% endblock %}
