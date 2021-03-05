@@ -9,7 +9,16 @@
     <form action="{{ url_for('signup')}}" method="POST">
       <div class="form-row">
         <div class="form-group col-md-6 mb-2">
-         
+          <input
+            type="text"
+            style="margin: 2% auto"
+            class="form-control"
+            name="userID"
+            id="userID"
+            placeholder="Username"
+          />
+        </div>
+        <div class="form-group col-md-6 mb-2">
           <input
             type="Email"
             style="margin: 2% auto"
@@ -20,7 +29,6 @@
           />
         </div>
         <div class="form-group col-md-6 mb-2">
-          
           <input
             type="password"
             style="margin: 2% auto"
@@ -33,7 +41,6 @@
       </div>
       <div class="form-row">
         <div class="form-group col-md-6 mb-2">
-         
           <input
             type="name"
             style="margin: 2% auto"
@@ -44,7 +51,6 @@
           />
         </div>
         <div class="form-group col-md-6 mb-2">
-         
           <input
             type="name"
             style="margin: 2% auto"
@@ -56,20 +62,18 @@
         </div>
       </div>
       <div class="form-group col-md-6 mb-2">
-         
-          <input
-            type="number"
-            style="margin: 2% auto"
-            class="form-control"
-            name="userPhoneNum"
-            id="userPhoneNum"
-            maxlength="8"
-            placeholder="Contact Number" 
-            oninput= "javascript: if (this.value.length > 8) this.value = this.value.slice(0, 8);"
-           />
-        </div>
+        <input
+          type="number"
+          style="margin: 2% auto"
+          class="form-control"
+          name="userContactNum"
+          id="userContactNum"
+          maxlength="8"
+          placeholder="Contact Number"
+          oninput="javascript: if (this.value.length > 8) this.value = this.value.slice(0, 8);"
+        />
+      </div>
       <div class="form-group col-md-6 mb-2">
-       
         <input
           type="text"
           style="margin: 2% auto"
@@ -80,18 +84,26 @@
         />
       </div>
       <div class="form-group col-md-6 mb-2">
-       
         <input
           type="text"
           style="margin: 2% auto"
           class="form-control"
           name="userBlockNum"
           id="userBlockNum"
-          placeholder="Block, Unit number"
+          placeholder="Block"
         />
       </div>
       <div class="form-group col-md-6 mb-2">
-       
+        <input
+          type="number"
+          style="margin: 2% auto"
+          class="form-control"
+          name="userUnitNum"
+          id="userUnitNum"
+          placeholder="Unit number"
+        />
+      </div>
+      <div class="form-group col-md-6 mb-2">
         <input
           type="number"
           style="margin: 2% auto"
@@ -99,7 +111,7 @@
           name="userPostalCode"
           id="userPostalCode"
           maxlength="6"
-          oninput= "javascript: if (this.value.length > 6) this.value = this.value.slice(0, 6);"
+          oninput="javascript: if (this.value.length > 6) this.value = this.value.slice(0, 6);"
           placeholder="Postal Code"
         />
       </div>

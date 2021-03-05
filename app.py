@@ -28,14 +28,14 @@ def login():
     # return render_template('login.html')
     if request.method == 'POST':
         try:
-            userEmail = request.form['userEmail']
+            username = request.form['username']
             userPassword = request.form['userPassword']
-            if userEmail == "" or userPassword == "":
+            if username == "" or userPassword == "":
                 quit()
             with sqlite3.connect("database.db") as con:
                 cur = con.cursor()
-                SQL_command = "SELECT userID, userPassword FROM usersTable WHERE userEmail = '" + \
-                    str(userEmail) + "'"
+                SQL_command = "SELECT userID, userPassword FROM usersTable WHERE userID = '" + \
+                    str(username) + "'"
                 cur.execute(SQL_command)
                 rows = cur.fetchall()
                 actualpassword = ""
@@ -119,12 +119,12 @@ def account():
 def signup():
     if request.method == 'POST':
         try:
-            userEmail = request.form['userEmail']
-            # check if the email is in use before
+            userID = request.form['userID']
+            # check if the username is in use before
             with sqlite3.connect("database.db") as con:
                 cur = con.cursor()
-                SQL_command = "SELECT userID FROM usersTable WHERE userEmail = '" + \
-                    str(userEmail) + "'"
+                SQL_command = "SELECT userID FROM usersTable WHERE userID = '" + \
+                    str(userID) + "'"
                 cur.execute(SQL_command)
                 rows = cur.fetchall()
                 sessionID = ""
@@ -132,22 +132,25 @@ def signup():
                     sessionID = row[0]
                 if sessionID != "":
                     quit()
+            userEmail = request.form['userEmail']
             userPassword = request.form['userPassword']
             userFirstName = request.form['userFirstName']
             userLastName = request.form['userLastName']
-            userPhoneNum = request.form['userPhoneNum']
+            userContactNum = request.form['userContactNum']
             userStreetName = request.form['userStreetName']
             userBlockNum = request.form['userBlockNum']
-            userStreetName = request.form['userStreetName']
+            userUnitNum = request.form['userUnitNum']
             userPostalCode = request.form['userPostalCode']
 
-            userNewEntry = (userEmail,
+            userNewEntry = (userID,
+                            userEmail,
                             userPassword,
                             userFirstName,
                             userLastName,
-                            userPhoneNum,
+                            userContactNum,
                             userStreetName,
                             userBlockNum,
+                            userUnitNum,
                             userPostalCode)
 
             print(userNewEntry)
@@ -155,21 +158,14 @@ def signup():
 
             with sqlite3.connect("database.db") as con:
                 cur = con.cursor()
-                SQL_command = "INSERT INTO usersTable (userEmail,"
-                "userPassword,"
-                "userFirstName,"
-                "userLastName,"
-                "userPhoneNum,"
-                "userStreetName,"
-                "userBlockNum,"
-                "userPostalCode) VALUES (?,?,?,?,?,?,?,?)"
+                SQL_command = "INSERT INTO usersTable (userID, userEmail, userPassword, userFirstName, userLastName, userContactNum, userBlockNum, userStreetName, userUnitNum, userPostalCode) VALUES (?,?,?,?,?,?,?,?,?,?)"
                 print(SQL_command)
                 cur.execute(SQL_command, userNewEntry)
             con.commit()
             return redirect(url_for('login'))
 
         except:
-            flash("Email in use already!")
+            flash("Username in use already!")
 
         con.close()
     return render_template('signup.html')
