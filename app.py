@@ -158,7 +158,7 @@ def signup():
 
             with sqlite3.connect("database.db") as con:
                 cur = con.cursor()
-                SQL_command = "INSERT INTO usersTable (userID, userEmail, userPassword, userFirstName, userLastName, userContactNum, userBlockNum, userStreetName, userUnitNum, userPostalCode) VALUES (?,?,?,?,?,?,?,?,?,?)"
+                SQL_command = "INSERT INTO usersTable (userID, userPassword, userEmail, userFirstName, userLastName, userContactNum, userBlockNum, userStreetName, userUnitNum, userPostalCode) VALUES (?,?,?,?,?,?,?,?,?,?)"
                 print(SQL_command)
                 cur.execute(SQL_command, userNewEntry)
             con.commit()
