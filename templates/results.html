@@ -9,7 +9,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for i in testing %}
+    {% for i in result %}
     <tr>
       <td>{{i['_id']}}</td>
       <td>{{i['title']}}</td>
@@ -19,8 +19,8 @@
       <td>
         <form action="{{ url_for('borrowSuccess')}}" method="POST">
           <button
-            value="{{i['title']}}"
-            name="title"
+            value="{{i['_id']}}"
+            name="_id"
             type="submit"
             class="btn btn-primary form-control"
           >
@@ -32,8 +32,8 @@
       <td>
         <form action="{{ url_for('reservationSuccess')}}" method="POST">
           <button
-            value="{{i['title']}}"
-            name="title"
+            value="{{i['_id']}}"
+            name="_id"
             type="submit"
             class="btn btn-primary form-control"
           >

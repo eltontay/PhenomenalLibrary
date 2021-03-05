@@ -1,5 +1,6 @@
 from flask import Flask, session, redirect, flash, render_template, request, url_for
 from markupsafe import escape
+from datetime import date
 import sqlite3
 import pymongo
 
@@ -66,7 +67,7 @@ def library():
 @app.route('/library/results', methods=['GET', 'POST'])
 def results():
     bookSearch = request.form['bookSearch']
-    testing = list(collection.aggregate([
+    result = list(collection.aggregate([
         {
             '$search': {
                 'compound': {
@@ -95,27 +96,39 @@ def results():
                 }
             }
         }]))
-    return render_template('results.html', bookSearch=bookSearch, testing=testing)
+    return render_template('results.html', bookSearch=bookSearch, result=result)
 
 
 @app.route('/library/results/reservationSuccess', methods=['GET', 'POST'])
 def reservationSuccess():
-    title = request.form['title']
-    return render_template('reservationSuccess.html', title=title)
+    _id = request.form['_id']
+    return render_template('reservationSuccess.html', _id=_id)
 
 
 @app.route('/library/results/borrowSuccess', methods=['GET', 'POST'])
 def borrowSuccess():
-    title = request.form['title']
-    return render_template('borrowSuccess.html', title=title)
+    _id = request.form['_id']
+    result = collection.find_one({'_id': int(_id)})
+    print(result)
+    for i in result:
+        print(i)
+    with sqlite3.connect("database.db") as con:
+        cur = con.cursor()
+        d = date.today().strftime("%d/%m/%y")
+        SQL_command = "INSERT INTO loans (userID, bookID, loanID, borrowDate, returnDate) VALUES (?,?,?,?,?)"
+        loanEntry = (session['userID'], result['_id'], '', d, '')
+        print(SQL_command)
+        cur.execute(SQL_command, loanEntry)
+    con.commit()
+    return render_template('borrowSuccess.html', _id=_id)
 
 
-@app.route('/account', methods=['GET', 'POST'])
+@ app.route('/account', methods=['GET', 'POST'])
 def account():
     return render_template('account.html')
 
 
-@app.route('/signup', methods=['GET', 'POST'])
+@ app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         try:
