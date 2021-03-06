@@ -102,16 +102,28 @@ def results():
 @app.route('/library/results/reservationSuccess', methods=['GET', 'POST'])
 def reservationSuccess():
     _id = request.form['_id']
-    return render_template('reservationSuccess.html', _id=_id)
+    result = collection.find_one({'_id': int(_id)})
+    with sqlite3.connect("database.db") as con:
+        cur = con.cursor()
+        d = date.today().strftime("%d/%m/%y")
+        SQL_command = "INSERT INTO reserves (userID, bookID, reserveDate) VALUES (?,?,?)"
+        reserveEntry = (session['userID'], result['_id'], d)
+        print(SQL_command)
+        cur.execute(SQL_command, reserveEntry)
+    con.commit()
+    return render_template('reservationSuccess.html', result=result)
 
 
 @app.route('/library/results/borrowSuccess', methods=['GET', 'POST'])
 def borrowSuccess():
     _id = request.form['_id']
     result = collection.find_one({'_id': int(_id)})
-    print(result)
-    for i in result:
-        print(i)
+    try:
+        collection.find_one_and_update(
+            {'_id': int(_id)}, {'$set': {'available': False}})
+        print(collection.find_one({'_id': int(_id)}))
+    except:
+        print("an exception has occured")
     with sqlite3.connect("database.db") as con:
         cur = con.cursor()
         d = date.today().strftime("%d/%m/%y")
@@ -120,7 +132,7 @@ def borrowSuccess():
         print(SQL_command)
         cur.execute(SQL_command, loanEntry)
     con.commit()
-    return render_template('borrowSuccess.html', _id=_id)
+    return render_template('borrowSuccess.html', result=result)
 
 
 @ app.route('/account', methods=['GET', 'POST'])
