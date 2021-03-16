@@ -12,9 +12,9 @@ conn = sqlite3.connect('library.db')
 print("Opened SQLdatabase successfully")
 # my trial server
 client = pymongo.MongoClient(
-    "mongodb+srv://admin:admin@phenomcluster.1j72v.mongodb.net/myFirstDatabase")
-db = client["phenomLibrary"]
-collection = db["libraryBooks"]
+    "mongodb+srv://admin:admin@phenomcluster.1j72v.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+db = client["libraryDatabase"]
+collection = db["libraryCollection"]
 
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -71,36 +71,7 @@ def library():
 @app.route('/library/results', methods=['GET', 'POST'])
 def results():
     bookSearch = request.form['bookSearch']
-    result = list(collection.aggregate([
-        {
-            '$search': {
-                'compound': {
-                    'should': [
-                        {
-                            'text': {
-                                'query': bookSearch,
-                                'path': [
-                                    'title'
-                                ],
-                                'score': {
-                                    'boost': {
-                                        'value': 5
-                                    }
-                                }
-                            }
-                        }, {
-                            'text': {
-                                'query': bookSearch,
-                                'path': [
-                                    'isbn', 'authors', 'categories', 'longDescription'
-                                ]
-                            }
-                        }
-                    ]
-                }
-            }
-        }]))
-    return render_template('results.html', bookSearch=bookSearch, result=result)
+    return render_template('results.html', bookSearch=bookSearch)
 
 
 @app.route('/library/results/reservationSuccess', methods=['GET', 'POST'])
