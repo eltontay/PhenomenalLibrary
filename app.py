@@ -161,7 +161,6 @@ def signup():
             with sqlite3.connect("library.db") as con:
                 cur = con.cursor()
                 SQL_command = "INSERT INTO userTable (userName, userPassword, email, fName, lName, phoneNum, blockNum, streetName, unitNum, postalCode) VALUES (?,?,?,?,?,?,?,?,?,?)"
-
                 print(SQL_command)
                 cur.execute(SQL_command, userNewEntry)
             con.commit()
