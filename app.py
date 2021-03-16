@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 # Database configuration
-conn = sqlite3.connect('database.db')
+conn = sqlite3.connect('library.db')
 print("Opened SQLdatabase successfully")
 # my trial server
 client = pymongo.MongoClient(
@@ -33,9 +33,9 @@ def login():
             userPassword = request.form['userPassword']
             if username == "" or userPassword == "":
                 quit()
-            with sqlite3.connect("database.db") as con:
+            with sqlite3.connect("library.db") as con:
                 cur = con.cursor()
-                SQL_command = "SELECT userID, userPassword FROM usersTable WHERE userID = '" + \
+                SQL_command = "SELECT userID, userPassword FROM memberUser WHERE userID = '" + \
                     str(username) + "'"
                 cur.execute(SQL_command)
                 rows = cur.fetchall()
@@ -103,10 +103,10 @@ def results():
 def reservationSuccess():
     _id = request.form['_id']
     result = collection.find_one({'_id': int(_id)})
-    with sqlite3.connect("database.db") as con:
+    with sqlite3.connect("library.db") as con:
         cur = con.cursor()
         d = date.today().strftime("%d/%m/%y")
-        SQL_command = "INSERT INTO reserves (userID, bookID, reserveDate) VALUES (?,?,?)"
+        SQL_command = "INSERT INTO reserve (userID, bookID, reserveDate) VALUES (?,?,?)"
         reserveEntry = (session['userID'], result['_id'], d)
         print(SQL_command)
         cur.execute(SQL_command, reserveEntry)
@@ -124,10 +124,10 @@ def borrowSuccess():
         print(collection.find_one({'_id': int(_id)}))
     except:
         print("an exception has occured")
-    with sqlite3.connect("database.db") as con:
+    with sqlite3.connect("library.db") as con:
         cur = con.cursor()
         d = date.today().strftime("%d/%m/%y")
-        SQL_command = "INSERT INTO loans (userID, bookID, loanID, borrowDate, returnDate) VALUES (?,?,?,?,?)"
+        SQL_command = "INSERT INTO loan (userID, bookID, loanID, borrowDate, returnDate) VALUES (?,?,?,?,?)"
         loanEntry = (session['userID'], result['_id'], '', d, '')
         print(SQL_command)
         cur.execute(SQL_command, loanEntry)
@@ -146,9 +146,9 @@ def signup():
         try:
             userID = request.form['userID']
             # check if the username is in use before
-            with sqlite3.connect("database.db") as con:
+            with sqlite3.connect("library.db") as con:
                 cur = con.cursor()
-                SQL_command = "SELECT userID FROM usersTable WHERE userID = '" + \
+                SQL_command = "SELECT userID FROM memberUser WHERE userID = '" + \
                     str(userID) + "'"
                 cur.execute(SQL_command)
                 rows = cur.fetchall()
@@ -157,36 +157,37 @@ def signup():
                     sessionID = row[0]
                 if sessionID != "":
                     quit()
-            userEmail = request.form['userEmail']
+            email = request.form['email']
             userPassword = request.form['userPassword']
-            userFirstName = request.form['userFirstName']
-            userLastName = request.form['userLastName']
-            userContactNum = request.form['userContactNum']
-            userStreetName = request.form['userStreetName']
-            userBlockNum = request.form['userBlockNum']
-            userUnitNum = request.form['userUnitNum']
-            userPostalCode = request.form['userPostalCode']
+            fName = request.form['fName']
+            lName = request.form['lName']
+            phoneNum = request.form['phoneNum']
+            blockNum = request.form['blockNum']
+            streetName = request.form['streetName']
+            unitNum = request.form['unitNum']
+            postalCode = request.form['postalCode']
 
             userNewEntry = (userID,
-                            userEmail,
                             userPassword,
-                            userFirstName,
-                            userLastName,
-                            userContactNum,
-                            userStreetName,
-                            userBlockNum,
-                            userUnitNum,
-                            userPostalCode)
+                            email,
+                            fName,
+                            lName,
+                            phoneNum,
+                            blockNum,
+                            streetName,
+                            unitNum,
+                            postalCode)
 
             print(userNewEntry)
             msg = "Record successfully added"
 
-            with sqlite3.connect("database.db") as con:
+            with sqlite3.connect("library.db") as con:
                 cur = con.cursor()
-                SQL_command = "INSERT INTO usersTable (userID, userPassword, userEmail, userFirstName, userLastName, userContactNum, userBlockNum, userStreetName, userUnitNum, userPostalCode) VALUES (?,?,?,?,?,?,?,?,?,?)"
+                SQL_command = "INSERT INTO memberUser (userID, userPassword, email, fName, lName, phoneNum, blockNum, streetName, unitNum, postalCode) VALUES (?,?,?,?,?,?,?,?,?,?)"
                 print(SQL_command)
                 cur.execute(SQL_command, userNewEntry)
             con.commit()
+            print("success")
             return redirect(url_for('login'))
 
         except:
