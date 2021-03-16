@@ -31,6 +31,7 @@ def login():
         try:
             username = request.form['username']
             userPassword = request.form['userPassword']
+            print("username: " + username + " password "+ userPassword)
             if username == "" or userPassword == "":
                 quit()
             with sqlite3.connect("database.db") as con:
@@ -38,12 +39,14 @@ def login():
                 SQL_command = "SELECT userID, userPassword FROM usersTable WHERE userID = '" + \
                     str(username) + "'"
                 cur.execute(SQL_command)
+                print(SQL_command)
                 rows = cur.fetchall()
                 actualpassword = ""
                 sessionID = ""
                 for row in rows:
                     sessionID = row[0]
                     actualpassword = row[1]
+                print("comes here leh password: "+ sessionID + " antoher one ius :" +actualpassword)
                 if str(actualpassword) == str(userPassword):
                     session['userID'] = sessionID
                     return redirect(url_for('library'))
@@ -155,7 +158,9 @@ def signup():
                 sessionID = ""
                 for row in rows:
                     sessionID = row[0]
+                    print(sessionID)
                 if sessionID != "":
+                    flash("Username in use already!")
                     quit()
             userEmail = request.form['userEmail']
             userPassword = request.form['userPassword']
@@ -168,8 +173,8 @@ def signup():
             userPostalCode = request.form['userPostalCode']
 
             userNewEntry = (userID,
-                            userEmail,
                             userPassword,
+                            userEmail,
                             userFirstName,
                             userLastName,
                             userContactNum,
@@ -183,14 +188,24 @@ def signup():
 
             with sqlite3.connect("database.db") as con:
                 cur = con.cursor()
-                SQL_command = "INSERT INTO usersTable (userID, userPassword, userEmail, userFirstName, userLastName, userContactNum, userBlockNum, userStreetName, userUnitNum, userPostalCode) VALUES (?,?,?,?,?,?,?,?,?,?)"
+                SQL_command = "INSERT INTO usersTable (userID," + \
+                                                       "userPassword," + \
+                                                        "userEmail," + \
+                                                        "userFirstName," + \
+                                                        "userLastName," + \
+                                                        "userContactNum," + \
+                                                        "userBlockNum," + \
+                                                        "userStreetName," + \
+                                                        "userUnitNum," + \
+                                                        "userPostalCode) VALUES (?,?,?,?,?,?,?,?,?,?)"
                 print(SQL_command)
                 cur.execute(SQL_command, userNewEntry)
             con.commit()
             return redirect(url_for('login'))
 
         except:
-            flash("Username in use already!")
+            print("help")
+            
 
         con.close()
     return render_template('signup.html')

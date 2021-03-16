@@ -14,6 +14,55 @@ input[type=number]:focus,
 }
 
 
+/* CSS for Library Page */
+nav.navbar.navbar-expand-lg.navbar-light.bg-light {
+  z-index: 200;
+  color: #fff !important;
+  width: 100%;
+  height: 48px;
+  line-height: 48px;
+  text-align: center;
+  background: rgb(11, 14, 17) !important;
+  transition: padding 0.5s ease 0s;
+  font-weight: 700;
+}
+
+.navbar-light .navbar-nav .nav-link ,
+.navbar-light .navbar-nav .nav-link.active, .navbar-light .navbar-nav .show>.nav-link,
+.navbar-light .navbar-brand 
+.navbar-light:hover {
+  color: #fff;
+}
+
+img#navbarLogo {
+  width: 120px;
+  position: relative;
+  margin-top: -7px;
+}
+.absolute-right {
+  position: absolute;
+  right: 20px;
+}
+/* End CSS for Library Page */
+
+
+
+h2.contentHead {
+  font-size: 33px;
+  line-height: 40px;
+  padding-top: 2.5%;
+  text-align: center;
+  margin: auto;
+  color: #212833;
+  font-weight: 250;
+}
+.ctiubF {
+  height: 1px;
+  width: 100%;
+  background: rgb(234, 236, 239);
+  margin: 20px 0px;
+}
+
 #loginCard {
   width: 60%;
   margin: 5% auto;
@@ -29,6 +78,19 @@ input[type=number]:focus,
   box-shadow: rgb(0 0 0 / 6%) 0px 10px 40px 0px;
   border-radius: 4px;
   padding-top: 10%;
+}
+button.signupformControl.btn.btn-primary.form-control {
+  margin-top:4%;
+}
+
+.form-group.col.mb-2 {
+  margin-top: 3%;
+}
+
+button.signupformControl.btn.btn-primary.form-control,
+input.signupformControl {
+  margin-top: 4%;
+  width:80% !important;
 }
 
 button.btn.btn-primary.form-control,
@@ -47,10 +109,7 @@ ul.flashes {
   padding: 1%;
   list-style: none;
 }
-#signUpLogo {
-  width: 10%;
-  margin: 0% 45%;
-}
+
 button.btn.btn-primary.form-control {
   width: 20%;
 }
@@ -67,12 +126,13 @@ input.form-control {
   border-radius: 0px;
   text-align: left;
   border:none;
-  border-bottom: 1px solid #000;
+  border-bottom: 1px solid #848e9c;
 }
 button.btn.btn-primary.form-control:focus,
 input.form-control:focus {
   border-color: #f0b90b;
 }
+
 
 .mainLogo {
   width: 40%;
@@ -83,7 +143,10 @@ input.form-control:focus {
 }
 
 #signUpBody {
-  margin-top: 5%;
+  margin-top: 2%;
+  width:30%;
+  margin-bottom: 10%;
+  height: 600px;
 }
 
 .card {
@@ -91,9 +154,14 @@ input.form-control:focus {
 }
 #mainBody {
   background-color: #f7f7f7;
-  font-family: 'DINPro-Bold', 'IBMPlexSans-SemiBold', -apple-system, 'PingFang SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', Arial, 'Segoe UI', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 }
 @media only screen and (max-width: 600px) {
+  img#navbarLogo {
+    width: 120px;
+    position: relative;
+    margin-top: -20px;
+  }
   .card { 
     width: 80%;
   }

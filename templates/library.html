@@ -3,7 +3,8 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
     <a class="navbar-brand" href="{{ url_for('library')}}"
-      >The Phenomenal Library</a
+      ><img id="navbarLogo" src="{{url_for('static',
+      filename='images/logo_Nav.png')}}" align="middle" /></a
     >
     <button
       class="navbar-toggler"
@@ -16,16 +17,8 @@
     >
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a
-            class="nav-link active"
-            aria-current="page"
-            href="{{ url_for('library')}}"
-            >Home</a
-          >
-        </li>
+    <div class="collapse navbar-collapse absolute-right" id="navbarNav">
+      <ul class="nav navbar-nav">
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('account') }}">Account</a>
         </li>
