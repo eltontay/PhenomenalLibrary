@@ -31,6 +31,7 @@ def login():
         try:
             username = request.form['username']
             userPassword = request.form['userPassword']
+            print("username: " + username + " password " + userPassword)
             if username == "" or userPassword == "":
                 quit()
             with sqlite3.connect("library.db") as con:
@@ -38,12 +39,15 @@ def login():
                 SQL_command = "SELECT userID, userPassword FROM memberUser WHERE userID = '" + \
                     str(username) + "'"
                 cur.execute(SQL_command)
+                print(SQL_command)
                 rows = cur.fetchall()
                 actualpassword = ""
                 sessionID = ""
                 for row in rows:
                     sessionID = row[0]
                     actualpassword = row[1]
+                print("comes here leh password: " + sessionID +
+                      " antoher one ius :" + actualpassword)
                 if str(actualpassword) == str(userPassword):
                     session['userID'] = sessionID
                     return redirect(url_for('library'))
@@ -155,7 +159,9 @@ def signup():
                 sessionID = ""
                 for row in rows:
                     sessionID = row[0]
+                    print(sessionID)
                 if sessionID != "":
+                    flash("Username in use already!")
                     quit()
             email = request.form['email']
             userPassword = request.form['userPassword']
@@ -184,6 +190,7 @@ def signup():
             with sqlite3.connect("library.db") as con:
                 cur = con.cursor()
                 SQL_command = "INSERT INTO memberUser (userID, userPassword, email, fName, lName, phoneNum, blockNum, streetName, unitNum, postalCode) VALUES (?,?,?,?,?,?,?,?,?,?)"
+
                 print(SQL_command)
                 cur.execute(SQL_command, userNewEntry)
             con.commit()
@@ -191,7 +198,7 @@ def signup():
             return redirect(url_for('login'))
 
         except:
-            flash("Username in use already!")
+            print("help")
 
         con.close()
     return render_template('signup.html')

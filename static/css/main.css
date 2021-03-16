@@ -1,15 +1,107 @@
+textarea:focus, 
+textarea.form-control:focus, 
+input.form-control:focus, 
+input[type=text]:focus, 
+input[type=password]:focus, 
+input[type=email]:focus, 
+input[type=number]:focus, 
+[type=text].form-control:focus, 
+[type=password].form-control:focus, 
+[type=email].form-control:focus, 
+[type=tel].form-control:focus, 
+[contenteditable].form-control:focus {
+  box-shadow: inset 0 -1px 0 #ddd;
+}
+
+
+/* CSS for Library Page */
+nav.navbar.navbar-expand-lg.navbar-light.bg-light {
+  z-index: 200;
+  color: #fff !important;
+  width: 100%;
+  height: 48px;
+  line-height: 48px;
+  text-align: center;
+  background: rgb(11, 14, 17) !important;
+  transition: padding 0.5s ease 0s;
+  font-weight: 700;
+}
+
+.navbar-light .navbar-nav .nav-link ,
+.navbar-light .navbar-nav .nav-link.active, .navbar-light .navbar-nav .show>.nav-link,
+.navbar-light .navbar-brand 
+.navbar-light:hover {
+  color: #fff;
+}
+
+img#navbarLogo {
+  width: 120px;
+  position: relative;
+  margin-top: -7px;
+}
+.absolute-right {
+  position: absolute;
+  right: 20px;
+}
+/* End CSS for Library Page */
+
+
+
+h2.contentHead {
+  font-size: 33px;
+  line-height: 40px;
+  padding-top: 2.5%;
+  text-align: center;
+  margin: auto;
+  color: #212833;
+  font-weight: 250;
+}
+.ctiubF {
+  height: 1px;
+  width: 100%;
+  background: rgb(234, 236, 239);
+  margin: 20px 0px;
+}
+
 #loginCard {
   width: 60%;
   margin: 5% auto;
 }
+
+.card {
+  width: 50%;
+  margin: auto;
+  height: 500px;
+}
+.card-body {
+  background: rgb(255, 255, 255);
+  box-shadow: rgb(0 0 0 / 6%) 0px 10px 40px 0px;
+  border-radius: 4px;
+  padding-top: 10%;
+}
+button.signupformControl.btn.btn-primary.form-control {
+  margin-top:4%;
+}
+
+.form-group.col.mb-2 {
+  margin-top: 3%;
+}
+
+button.signupformControl.btn.btn-primary.form-control,
+input.signupformControl {
+  margin-top: 4%;
+  width:80% !important;
+}
+
 button.btn.btn-primary.form-control,
 input.btn.btn-primary {
-  width: 40;
-  width: 40%;
+  width: 60%;
   margin: auto;
-  background: #f6d55c;
+  background: linear-gradient( 90deg
+, #f0b90b 0%, #fbda3c 100%);
   border-color: #f6d55c;
   color: black;
+  box-shadow: 0px 10px 20px 0px rgb(240 185 10 / 30%);
 }
 ul.flashes {
   text-align: center;
@@ -17,46 +109,71 @@ ul.flashes {
   padding: 1%;
   list-style: none;
 }
-#signUpLogo {
-  width: 10%;
-  margin: 0% 45%;
-}
+
 button.btn.btn-primary.form-control {
   width: 20%;
 }
 
 button.btn.btn-primary.form-control:hover,
 input.btn.btn-primary:hover {
-  background: #ffa600;
-  border-color: #ffa600;
+  background: #fae88d;
+  border-bottom: 1px solid #fae88d;
 }
 
 input.form-control {
-  width: 40%;
+  width: 60%;
   margin: auto;
-  text-align: center;
+  border-radius: 0px;
+  text-align: left;
+  border:none;
+  border-bottom: 1px solid #848e9c;
 }
 button.btn.btn-primary.form-control:focus,
 input.form-control:focus {
-  border-color: #ffa600;
+  border-color: #f0b90b;
 }
 
+
 .mainLogo {
-  width: 20%;
-  margin: 0% 40%;
+  width: 40%;
+  margin: 0% 30%;
 }
 .form-group.col-md-6.mb-2 {
   margin: auto;
 }
 
 #signUpBody {
-  margin-top: 5%;
+  margin-top: 2%;
+  width:30%;
+  margin-bottom: 10%;
+  height: 600px;
 }
 
 .card {
   border: 1px solid #fff;
 }
+#mainBody {
+  background-color: #f7f7f7;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+}
 @media only screen and (max-width: 600px) {
+  img#navbarLogo {
+    width: 120px;
+    position: relative;
+    margin-top: -20px;
+  }
+  .card { 
+    width: 80%;
+  }
+  #mainBody {
+    background-color: #fff;
+  }
+  .card-body {
+    background: rgb(255, 255, 255);
+    box-shadow: none;
+    border-radius: none;
+  }
+
   #loginCard {
     width: 100%;
     margin-top: 30%;
