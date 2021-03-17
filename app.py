@@ -18,6 +18,7 @@ client = pymongo.MongoClient(
      "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
 db = client["libraryDatabase"]
 collection = db["libraryCollection"]
+#######################################################################################################
 
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -26,6 +27,8 @@ def logout():
     return redirect(url_for('login'))
 
 ##### START OF LOGIN WORKS FINE #############
+
+
 @app.route('/')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -65,11 +68,12 @@ def login():
     return render_template('login.html')
 ##### END OF LOGIN WORKS FINE #############
 
+
 @app.route('/library', methods=['GET', 'POST'])
 def library():
     if 'userID' in session:
         return render_template('library.html')
-    if request.method == 'POST':  
+    if request.method == 'POST':
         bookSearch = request.form['bookSearch']
         return redirect(url_for('results', bookSearch=bookSearch))
     return redirect(url_for('login'))
