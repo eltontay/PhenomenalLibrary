@@ -14,18 +14,13 @@ print("Opened SQLdatabase successfully")
 # Localised Mongodb -> change the db to your database
 
 # Lundy COnnectionc
+# client = pymongo.MongoClient(
+#     "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
+# Elton Connection
 client = pymongo.MongoClient(
-    "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
+    "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
 db = client["libraryDatabase"]
 collection = db["libraryCollection"]
-
-# Elton connection -> my database missing one letter but lazy reset for now
-# client = pymongo.MongoClient(
-#     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
-# db = client["libraryDatabse"]
-# collection = db["libraryCollection"]
-#######################################################################################################
-# testing github desktop
 
 # books in specific
 
@@ -64,9 +59,10 @@ def results():
             if bookSearch == "" and bookAuthor == "" and bookCategory == "":
                 flash("Please input at least one query")
                 quit()
-                
-            #result = list(collection.find({"$text": {"$search": bookSearch}}))
-            result = db.libraryCollection.find({"title" : bookSearch})
+            # Elton -> not so sure how to put all 3 queries here. To try another day
+            result = list(collection.find(
+                {"$text": {"$search": bookSearch}}))
+            # result = db.libraryCollection.find({"title" : bookSearch})
             return render_template('results.html', bookSearch=bookSearch, result=result)
         except:
             print("help")
@@ -79,22 +75,20 @@ def reservationSuccess():
     result = list(db.libraryCollection.find({
         '_id':  int(_id)
     }))
-    
-    
+
     with sqlite3.connect("library.db") as con:
         cur = con.cursor()
-        ##check if he reserved more than 4 books anot
+        # check if he reserved more than 4 books anot
         SQL_command = "SELECT COUNT(endDate = '') FROM reserve WHERE userID =  '" + \
-                str(session['userID']) + "'"
-        print(SQL_command) 
+            str(session['userID']) + "'"
+        print(SQL_command)
         cur.execute(SQL_command)
         numofBooks = cur.fetchall()
         print(numofBooks[0][0])
         if numofBooks[0][0] >= 4:
             return render_template('borrowFail.html', transactionType="reserve")
-        
-        
-        ## first update book status
+
+        # first update book status
         SQL_command = "UPDATE Book SET reservedAvailability = FALSE WHERE bookID = '" + \
             str(_id) + "'"
         # print(SQL_command)
@@ -103,13 +97,11 @@ def reservationSuccess():
         # update loan status
         d = date.today().strftime("%d/%m/%y")
         SQL_command = "INSERT INTO reserve (userID, bookID, reserveDate, endDate) VALUES (?,?,?,?)"
-        loanEntry = (session['userID'], str(_id), d,'')
-        #print(SQL_command)
+        loanEntry = (session['userID'], str(_id), d, '')
+        # print(SQL_command)
         cur.execute(SQL_command, loanEntry)
     con.commit()
     return render_template('reservationSuccess.html', result=result)
-
-
 
 
 @ app.route('/library/results/borrowSuccess', methods=['GET', 'POST'])
@@ -121,8 +113,8 @@ def borrowSuccess():
 
     with sqlite3.connect("library.db") as con:
         cur = con.cursor()
-        
-        ## first count how many books the brother got borrowed
+
+        # first count how many books the brother got borrowed
         SQL_command = "SELECT COUNT(returnDate = '') FROM loan WHERE userID =  '" + \
             str(session['userID']) + "'"
         print(SQL_command)
@@ -130,9 +122,8 @@ def borrowSuccess():
         numofBooks = cur.fetchall()
         if numofBooks[0][0] >= 4:
             return render_template('borrowFail.html', transactionType="borrow")
-        
-        
-        ## first update book status
+
+        # first update book status
         SQL_command = "UPDATE Book SET availability = FALSE WHERE bookID = '" + \
             str(_id) + "'"
         # print(SQL_command)
@@ -152,7 +143,6 @@ def borrowSuccess():
 @ app.route('/account', methods=['GET', 'POST'])
 def account():
     return render_template('account.html')
-
 
 
 ##### START OF SignUp WORKS FINE #############
