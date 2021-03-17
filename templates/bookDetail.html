@@ -1,0 +1,20 @@
+{% include "library.html" %} {% block content %}
+{% for i in result %}
+<p>{{i['title']}}</p>
+<p>{{i['isbn']}}</p>
+<p>{{i['pageCount']}}</p>
+<p>{{i['publishedDate']}}</p>
+<p>{{i['thumbnailUrl']}}</p>
+<p>{{i['longDescription']}}</p>
+<p>{{i['authors']}}</p>
+<p>{{i['categories']}}</p>
+{% endfor %}
+
+<p>Available:</p>
+{% if availability %}
+<p> Available </p>
+
+{% endif %}
+
+
+{% endblock %}

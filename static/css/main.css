@@ -34,6 +34,10 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-light {
   color: #fff;
 }
 
+button.btn.btn-primary.form-control.viewmore {
+  width:100% !important; 
+}
+
 img#navbarLogo {
   width: 120px;
   position: relative;
@@ -94,7 +98,8 @@ input.signupformControl {
 }
 
 button.btn.btn-primary.form-control,
-input.btn.btn-primary {
+input.btn.btn-primary,
+a.btn.btn-primary.form-control.viewmore {
   width: 60%;
   margin: auto;
   background: linear-gradient( 90deg
@@ -115,6 +120,7 @@ button.btn.btn-primary.form-control {
 }
 
 button.btn.btn-primary.form-control:hover,
+a.btn.btn-primary.form-control.viewmore:hover,
 input.btn.btn-primary:hover {
   background: #fae88d;
   border-bottom: 1px solid #fae88d;

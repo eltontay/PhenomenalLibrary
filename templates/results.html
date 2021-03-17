@@ -14,31 +14,17 @@
       <td>{{i['title']}}</td>
       <td>{{i['shortDescription']}}</td>
       <td>
-        <form action="{{ url_for('borrowSuccess')}}" method="POST">
-          <button
-            value="{{i['_id']}}"
-            name="_id"
-            type="submit"
-            class="btn btn-primary form-control"
+       
+          <a
+            href="/book/{{i['_id']}}"
+            class="btn btn-primary form-control viewmore"
           >
             View More
-          </button>
-        </form>
-      </td>
-      <td>
-        <form action="{{ url_for('reservationSuccess')}}" method="POST">
-          <button
-            value="{{i['_id']}}"
-            name="_id"
-            type="submit"
-            class="btn btn-primary form-control"
-          >
-            Reserve
-          </button>
-        </form>
+      </a>
+        
       </td>
     </tr>
-    {% endif %} {% endfor %}
+ {% endfor %}
   </tbody>
 </table>
 {% endblock %}

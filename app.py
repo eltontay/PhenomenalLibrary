@@ -74,6 +74,24 @@ def library():
         return redirect(url_for('results', bookSearch=bookSearch))
     return redirect(url_for('login'))
 
+##books in specific
+@ app.route('/book/<int:bookid>', methods=['GET', 'POST'])
+def bookDetail(bookid):
+    #get book detail
+    result = list(db.libraryCollection.find({
+        '_id' :  bookid
+    }))
+    #get book availability 
+    with sqlite3.connect("library.db") as con:
+        cur = con.cursor()
+        SQL_command = "SELECT availability FROM book WHERE bookID = '" + \
+            str(bookid) + "'"
+        cur.execute(SQL_command)
+        rows = cur.fetchall()
+        for row in rows:
+            availability = row[0]
+    return render_template('bookDetail.html', result=result, availability=availability)
+
 
 @app.route('/library/results', methods=['GET', 'POST'])
 def results():
@@ -122,11 +140,13 @@ def borrowSuccess():
     return render_template('borrowSuccess.html', result=result)
 
 
+
 @ app.route('/account', methods=['GET', 'POST'])
 def account():
     return render_template('account.html')
 
 
+## done dont touch #####
 @ app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -184,7 +204,7 @@ def signup():
 
         con.close()
     return render_template('signup.html')
-
+## done dont touch #####
 
 if __name__ == '__main__':
     app.run(debug=True)
