@@ -214,8 +214,6 @@ def signup():
 ##### End OF SignUp WORKS FINE #############
 
 ##### START OF LOGIN WORKS FINE #############
-
-
 @ app.route('/')
 @ app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -233,19 +231,13 @@ def login():
                 SQL_command = "SELECT userID, userPassword FROM userTable WHERE userName = '" + \
                     str(username) + "'"
                 cur.execute(SQL_command)
-                print(SQL_command)
                 rows = cur.fetchall()
                 actualpassword = ""
                 sessionID = ""
                 for row in rows:
                     sessionID = str(row[0])
-                    actualpassword = row[1]
-                print("comes here leh password: " + sessionID +
-                      " antoher one ius :" + actualpassword)
-                print(actualpassword)
-                print(userPassword)
+                    actualpassword = row[1]   
                 if str(actualpassword) == str(userPassword):
-                    print("got leh")
                     session['userID'] = sessionID
                     return redirect(url_for('library'))
                 else:
@@ -277,6 +269,28 @@ def library():
     return redirect(url_for('login'))
 ##### END OF library WORKS FINE #############
 
+def refreshBorrowlisiting(cur):
+    ## get additional information about the borrowed books they hold and store in a variable
+    SQL_command = "SELECT bookID FROM loan WHERE returnDate = '' AND userID = '" + \
+        session['userID'] + "'"
+    cur.execute(SQL_command)
+    rows = cur.fetchall()
+    result = []
+    for row in rows:
+        result.append(row[0])
+    return result
+    
+def refreshReservelisiting(cur):
+    ## get additional information about the borrowed books they hold and store in a variable
+    SQL_command = "SELECT bookID FROM reserve WHERE endDate = '' AND userID = '" + \
+        session['userID'] + "'"
+    cur.execute(SQL_command)
+    rows = cur.fetchall()
+    result = []
+    for row in rows:
+        result.append(row[0])
+    return result
+    
 
 if __name__ == '__main__':
     app.run(debug=True)
