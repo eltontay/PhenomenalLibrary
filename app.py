@@ -15,24 +15,26 @@ print("Opened SQLdatabase successfully")
 
 # Lundy COnnectionc
 client = pymongo.MongoClient(
-     "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
-
-# Elton connection
-# client = pymongo.MongoClient(
-#     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
+    "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
 db = client["libraryDatabase"]
 collection = db["libraryCollection"]
+
+# Elton connection -> my database missing one letter but lazy reset for now
+# client = pymongo.MongoClient(
+#     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
+# db = client["libraryDatabse"]
+# collection = db["libraryCollection"]
 #######################################################################################################
 
 
-##books in specific
+# books in specific
 @ app.route('/book/<int:bookid>', methods=['GET', 'POST'])
 def bookDetail(bookid):
-    #get book detail
+    # get book detail
     result = list(db.libraryCollection.find({
-        '_id' :  bookid
+        '_id':  bookid
     }))
-    #get book availability 
+    # get book availability
     with sqlite3.connect("library.db") as con:
         cur = con.cursor()
         SQL_command = "SELECT availability, reservedAvailability FROM book WHERE bookID = '" + \
@@ -43,26 +45,35 @@ def bookDetail(bookid):
             availability = row[0]
             reserved = row[1]
         print(reserved)
-        
+
     return render_template('bookDetail.html', result=result, availability=availability, reserved=reserved)
+
+# in order to use the search function, need to assign indexes, i input the below command in mongo shell
+# db.libraryCollection.createIndex({title:"text",shortDescription:"text",longDescription:"text"})
 
 
 @app.route('/library/results', methods=['GET', 'POST'])
 def results():
-    bookSearch = request.form['bookSearch']
-    # list(db.libraryCollection.find({"title" : bookSearch }))
-    result = list(db.libraryCollection.find({"title" : bookSearch })) ##fuck this
-    print(result)
-    for i in result:
-        print(i)
-    return render_template('results.html', bookSearch=bookSearch, result=result)
+    if request.method == 'POST':
+        try:
+            bookSearch = request.form['bookSearch']
+            if bookSearch == "":
+                flash("Please input at least one query")
+                quit()
+                
+            #result = list(collection.find({"$text": {"$search": bookSearch}}))
+            result = db.libraryCollection.find({"title" : bookSearch})
+            return render_template('results.html', bookSearch=bookSearch, result=result)
+        except:
+            print("help")
+    return render_template('library.html')
 
 
 @ app.route('/library/results/reservationSuccess', methods=['GET', 'POST'])
 def reservationSuccess():
     _id = request.form['_id']
     result = list(db.libraryCollection.find({
-        '_id' :  int(_id)
+        '_id':  int(_id)
     }))
     
     
@@ -81,11 +92,11 @@ def reservationSuccess():
         
         ## first update book status
         SQL_command = "UPDATE Book SET reservedAvailability = FALSE WHERE bookID = '" + \
-                str(_id) + "'"
-        #print(SQL_command) 
+            str(_id) + "'"
+        # print(SQL_command)
         cur.execute(SQL_command)
-               
-        ## update loan status        
+
+        # update loan status
         d = date.today().strftime("%d/%m/%y")
         SQL_command = "INSERT INTO reserve (userID, bookID, reserveDate, endDate) VALUES (?,?,?,?)"
         loanEntry = (session['userID'], str(_id), d,'')
@@ -101,17 +112,16 @@ def reservationSuccess():
 def borrowSuccess():
     _id = request.form['_id']
     result = list(db.libraryCollection.find({
-        '_id' :  int(_id)
+        '_id':  int(_id)
     }))
-    
-        
+
     with sqlite3.connect("library.db") as con:
         cur = con.cursor()
         
         ## first count how many books the brother got borrowed
         SQL_command = "SELECT COUNT(returnDate = '') FROM loan WHERE userID =  '" + \
-                str(session['userID']) + "'"
-        print(SQL_command) 
+            str(session['userID']) + "'"
+        print(SQL_command)
         cur.execute(SQL_command)
         numofBooks = cur.fetchall()
         if numofBooks[0][0] >= 4:
@@ -120,17 +130,17 @@ def borrowSuccess():
         
         ## first update book status
         SQL_command = "UPDATE Book SET availability = FALSE WHERE bookID = '" + \
-                str(_id) + "'"
-        #print(SQL_command) 
+            str(_id) + "'"
+        # print(SQL_command)
         cur.execute(SQL_command)
-               
-        ## update loan status        
+
+        # update loan status
         d = date.today().strftime("%d/%m/%y")
         SQL_command = "INSERT INTO loan (userID, bookID, borrowDate, returnDate) VALUES (?,?,?,?)"
         loanEntry = (session['userID'], str(_id), d, '')
-        #print(SQL_command)
+        # print(SQL_command)
         cur.execute(SQL_command, loanEntry)
-        
+
     con.commit()
     return render_template('borrowSuccess.html', result=result)
 
@@ -202,8 +212,10 @@ def signup():
 ##### End OF SignUp WORKS FINE #############
 
 ##### START OF LOGIN WORKS FINE #############
-@app.route('/')
-@app.route('/login', methods=['GET', 'POST'])
+
+
+@ app.route('/')
+@ app.route('/login', methods=['GET', 'POST'])
 def login():
     # return render_template('login.html')
     if request.method == 'POST':
@@ -242,14 +254,18 @@ def login():
 ##### END OF LOGIN WORKS FINE #############
 
 ##### START OF Logout WORKS FINE #############
-@app.route('/logout', methods=['GET', 'POST'])
+
+
+@ app.route('/logout', methods=['GET', 'POST'])
 def logout():
     session.clear()
     return redirect(url_for('login'))
 ##### END OF Logout WORKS FINE #############
 
 ##### START OF Library WORKS FINE #############
-@app.route('/library', methods=['GET', 'POST'])
+
+
+@ app.route('/library', methods=['GET', 'POST'])
 def library():
     if 'userID' in session:
         return render_template('library.html')
@@ -258,6 +274,7 @@ def library():
         return redirect(url_for('results', bookSearch=bookSearch))
     return redirect(url_for('login'))
 ##### END OF library WORKS FINE #############
+
 
 if __name__ == '__main__':
     app.run(debug=True)
