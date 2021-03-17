@@ -65,12 +65,20 @@ def reservationSuccess():
         '_id' :  int(_id)
     }))
     
-    ##check if he reserved more than 4 books anot
-    
-    
     
     with sqlite3.connect("library.db") as con:
         cur = con.cursor()
+        ##check if he reserved more than 4 books anot
+        SQL_command = "SELECT COUNT(endDate = '') FROM reserve WHERE userID =  '" + \
+                str(session['userID']) + "'"
+        print(SQL_command) 
+        cur.execute(SQL_command)
+        numofBooks = cur.fetchall()
+        print(numofBooks[0][0])
+        if numofBooks[0][0] >= 4:
+            return render_template('borrowFail.html', transactionType="reserve")
+        
+        
         ## first update book status
         SQL_command = "UPDATE Book SET reservedAvailability = FALSE WHERE bookID = '" + \
                 str(_id) + "'"
@@ -79,16 +87,14 @@ def reservationSuccess():
                
         ## update loan status        
         d = date.today().strftime("%d/%m/%y")
-        SQL_command = "INSERT INTO reserve (userID, bookID, reserveDate) VALUES (?,?,?)"
-        loanEntry = (session['userID'], str(_id), d)
+        SQL_command = "INSERT INTO reserve (userID, bookID, reserveDate, endDate) VALUES (?,?,?,?)"
+        loanEntry = (session['userID'], str(_id), d,'')
         #print(SQL_command)
         cur.execute(SQL_command, loanEntry)
     con.commit()
     return render_template('reservationSuccess.html', result=result)
 
-@ app.route('/library/results/borrowUnSuccess')
-def borrowUnSuccess():
-    return render_template('borrowUnSuccess.html')
+
 
 
 @ app.route('/library/results/borrowSuccess', methods=['GET', 'POST'])
@@ -102,14 +108,14 @@ def borrowSuccess():
     with sqlite3.connect("library.db") as con:
         cur = con.cursor()
         
-        ## first update book status
+        ## first count how many books the brother got borrowed
         SQL_command = "SELECT COUNT(returnDate = '') FROM loan WHERE userID =  '" + \
                 str(session['userID']) + "'"
         print(SQL_command) 
         cur.execute(SQL_command)
         numofBooks = cur.fetchall()
         if numofBooks[0][0] >= 4:
-            return redirect(url_for('borrowUnSuccess'))
+            return render_template('borrowFail.html', transactionType="borrow")
         
         
         ## first update book status
@@ -132,6 +138,7 @@ def borrowSuccess():
 @ app.route('/account', methods=['GET', 'POST'])
 def account():
     return render_template('account.html')
+
 
 
 ##### START OF SignUp WORKS FINE #############
