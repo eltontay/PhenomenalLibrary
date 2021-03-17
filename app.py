@@ -57,7 +57,9 @@ def results():
     if request.method == 'POST':
         try:
             bookSearch = request.form['bookSearch']
-            if bookSearch == "":
+            bookAuthor = request.form['author']
+            bookCategory = request.form['category']
+            if bookSearch == "" and bookAuthor == "" and bookCategory == "":
                 flash("Please input at least one query")
                 quit()
             result = list(collection.find({"$text": {"$search": bookSearch}}))

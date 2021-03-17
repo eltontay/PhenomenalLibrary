@@ -3,9 +3,12 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
     <a class="navbar-brand" href="{{ url_for('library')}}"
-      ><img id="navbarLogo" src="{{url_for('static',
-      filename='images/logo_Nav.png')}}" align="middle" /></a
-    >
+      ><img
+        id="navbarLogo"
+        src="{{url_for('static',
+      filename='images/logo_Nav.png')}}"
+        align="middle"
+    /></a>
     <button
       class="navbar-toggler"
       type="button"
@@ -50,6 +53,24 @@
           placeholder="Search"
           aria-label="Search"
           name="bookSearch"
+        />
+      </div>
+      <div class="mb-2 row">
+        <input
+          class="form-control text-center"
+          type="search"
+          placeholder="Author"
+          aria-label="Search"
+          name="author"
+        />
+      </div>
+      <div class="mb-2 row">
+        <input
+          class="form-control text-center"
+          type="search"
+          placeholder="Category"
+          aria-label="Search"
+          name="category"
         />
       </div>
       <div class="mb-2 row">
