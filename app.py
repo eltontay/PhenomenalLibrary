@@ -4,7 +4,7 @@ from datetime import date
 import sqlite3
 import pymongo
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 # Database configuration
@@ -24,22 +24,6 @@ db = client["libraryDatabase"]
 collection = db["libraryCollection"]
 #######################################################################################################
 
-
-@app.route('/logout', methods=['GET', 'POST'])
-def logout():
-    session.clear()
-    return redirect(url_for('login'))
-
-
-
-@app.route('/library', methods=['GET', 'POST'])
-def library():
-    if 'userID' in session:
-        return render_template('library.html')
-    if request.method == 'POST':
-        bookSearch = request.form['bookSearch']
-        return redirect(url_for('results', bookSearch=bookSearch))
-    return redirect(url_for('login'))
 
 ##books in specific
 @ app.route('/book/<int:bookid>', methods=['GET', 'POST'])
@@ -68,46 +52,79 @@ def results():
     bookSearch = request.form['bookSearch']
     # list(db.libraryCollection.find({"title" : bookSearch }))
     result = list(db.libraryCollection.find({"title" : bookSearch })) ##fuck this
-    
     print(result)
     for i in result:
         print(i)
-        print("wahat")
     return render_template('results.html', bookSearch=bookSearch, result=result)
 
 
 @ app.route('/library/results/reservationSuccess', methods=['GET', 'POST'])
 def reservationSuccess():
     _id = request.form['_id']
-    result = collection.find_one({'_id': int(_id)})
+    result = list(db.libraryCollection.find({
+        '_id' :  int(_id)
+    }))
+    
+    ##check if he reserved more than 4 books anot
+    
+    
+    
     with sqlite3.connect("library.db") as con:
         cur = con.cursor()
+        ## first update book status
+        SQL_command = "UPDATE Book SET reservedAvailability = FALSE WHERE bookID = '" + \
+                str(_id) + "'"
+        #print(SQL_command) 
+        cur.execute(SQL_command)
+               
+        ## update loan status        
         d = date.today().strftime("%d/%m/%y")
         SQL_command = "INSERT INTO reserve (userID, bookID, reserveDate) VALUES (?,?,?)"
-        reserveEntry = (session['userID'], result['_id'], d)
-        print(SQL_command)
-        cur.execute(SQL_command, reserveEntry)
+        loanEntry = (session['userID'], str(_id), d)
+        #print(SQL_command)
+        cur.execute(SQL_command, loanEntry)
     con.commit()
     return render_template('reservationSuccess.html', result=result)
+
+@ app.route('/library/results/borrowUnSuccess')
+def borrowUnSuccess():
+    return render_template('borrowUnSuccess.html')
 
 
 @ app.route('/library/results/borrowSuccess', methods=['GET', 'POST'])
 def borrowSuccess():
     _id = request.form['_id']
-    result = collection.find_one({'_id': int(_id)})
-    try:
-        collection.find_one_and_update(
-            {'_id': int(_id)}, {'$set': {'available': False}})
-        print(collection.find_one({'_id': int(_id)}))
-    except:
-        print("an exception has occured")
+    result = list(db.libraryCollection.find({
+        '_id' :  int(_id)
+    }))
+    
+        
     with sqlite3.connect("library.db") as con:
         cur = con.cursor()
+        
+        ## first update book status
+        SQL_command = "SELECT COUNT(returnDate = '') FROM loan WHERE userID =  '" + \
+                str(session['userID']) + "'"
+        print(SQL_command) 
+        cur.execute(SQL_command)
+        numofBooks = cur.fetchall()
+        if numofBooks[0][0] >= 4:
+            return redirect(url_for('borrowUnSuccess'))
+        
+        
+        ## first update book status
+        SQL_command = "UPDATE Book SET availability = FALSE WHERE bookID = '" + \
+                str(_id) + "'"
+        #print(SQL_command) 
+        cur.execute(SQL_command)
+               
+        ## update loan status        
         d = date.today().strftime("%d/%m/%y")
-        SQL_command = "INSERT INTO loan (userID, bookID, loanID, borrowDate, returnDate) VALUES (?,?,?,?,?)"
-        loanEntry = (session['userID'], result['_id'], '', d, '')
-        print(SQL_command)
+        SQL_command = "INSERT INTO loan (userID, bookID, borrowDate, returnDate) VALUES (?,?,?,?)"
+        loanEntry = (session['userID'], str(_id), d, '')
+        #print(SQL_command)
         cur.execute(SQL_command, loanEntry)
+        
     con.commit()
     return render_template('borrowSuccess.html', result=result)
 
@@ -117,6 +134,7 @@ def account():
     return render_template('account.html')
 
 
+##### START OF SignUp WORKS FINE #############
 @ app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -174,6 +192,7 @@ def signup():
 
         con.close()
     return render_template('signup.html')
+##### End OF SignUp WORKS FINE #############
 
 ##### START OF LOGIN WORKS FINE #############
 @app.route('/')
@@ -190,7 +209,7 @@ def login():
                 quit()
             with sqlite3.connect("library.db") as con:
                 cur = con.cursor()
-                SQL_command = "SELECT userName, userPassword FROM userTable WHERE userName = '" + \
+                SQL_command = "SELECT userID, userPassword FROM userTable WHERE userName = '" + \
                     str(username) + "'"
                 cur.execute(SQL_command)
                 print(SQL_command)
@@ -198,7 +217,7 @@ def login():
                 actualpassword = ""
                 sessionID = ""
                 for row in rows:
-                    sessionID = row[0]
+                    sessionID = str(row[0])
                     actualpassword = row[1]
                 print("comes here leh password: " + sessionID +
                       " antoher one ius :" + actualpassword)
@@ -215,6 +234,23 @@ def login():
     return render_template('login.html')
 ##### END OF LOGIN WORKS FINE #############
 
+##### START OF Logout WORKS FINE #############
+@app.route('/logout', methods=['GET', 'POST'])
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+##### END OF Logout WORKS FINE #############
+
+##### START OF Library WORKS FINE #############
+@app.route('/library', methods=['GET', 'POST'])
+def library():
+    if 'userID' in session:
+        return render_template('library.html')
+    if request.method == 'POST':
+        bookSearch = request.form['bookSearch']
+        return redirect(url_for('results', bookSearch=bookSearch))
+    return redirect(url_for('login'))
+##### END OF library WORKS FINE #############
 
 if __name__ == '__main__':
     app.run(debug=True)
