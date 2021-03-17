@@ -10,13 +10,11 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 # Database configuration
 conn = sqlite3.connect('library.db')
 print("Opened SQLdatabase successfully")
-# my trial server
-# client = pymongo.MongoClient(
-#     "mongodb+srv://admin:admin@phenomcluster.1j72v.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-
+##### THIS LINK NEEDS TO CHANGE TO YOUR OWN LOCAL SERVER , DATABASE NAME , DATABASE COLLECTION #########
+# Localised Mongodb -> change the db to your database
 client = pymongo.MongoClient(
-     "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
-db = client["libraryDatabase"]
+    "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
+db = client["libraryDatabse"]
 collection = db["libraryCollection"]
 #######################################################################################################
 
@@ -78,34 +76,16 @@ def library():
         return redirect(url_for('results', bookSearch=bookSearch))
     return redirect(url_for('login'))
 
-##books in specific
-@ app.route('/book/<int:bookid>', methods=['GET', 'POST'])
-def bookDetail(bookid):
-    #get book detail
-    result = list(db.libraryCollection.find({
-        '_id' :  bookid
-    }))
-    #get book availability 
-    with sqlite3.connect("library.db") as con:
-        cur = con.cursor()
-        SQL_command = "SELECT availability FROM book WHERE bookID = '" + \
-            str(bookid) + "'"
-        cur.execute(SQL_command)
-        rows = cur.fetchall()
-        for row in rows:
-            availability = row[0]
-    return render_template('bookDetail.html', result=result, availability=availability)
-
 
 @app.route('/library/results', methods=['GET', 'POST'])
 def results():
     bookSearch = request.form['bookSearch']
-    ##non fuzzy search
-    result = list(db.libraryCollection.find({
-        'title' :  bookSearch
-    }))
+    result = list(collection.find({"$text": {"$search": bookSearch}}))
     print(result)
-    return render_template('results.html', bookSearch=bookSearch,result=result)
+    for i in result:
+        print(i)
+        print("wahat")
+    return render_template('results.html', bookSearch=bookSearch, result=result)
 
 
 @ app.route('/library/results/reservationSuccess', methods=['GET', 'POST'])
@@ -144,13 +124,11 @@ def borrowSuccess():
     return render_template('borrowSuccess.html', result=result)
 
 
-
 @ app.route('/account', methods=['GET', 'POST'])
 def account():
     return render_template('account.html')
 
 
-## done dont touch #####
 @ app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -208,7 +186,7 @@ def signup():
 
         con.close()
     return render_template('signup.html')
-## done dont touch #####
+
 
 if __name__ == '__main__':
     app.run(debug=True)
