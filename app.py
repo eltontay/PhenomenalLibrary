@@ -146,18 +146,16 @@ def borrowSuccess():
 def account():
     with sqlite3.connect("library.db") as con:
         cur = con.cursor()
-
-        # loan
-        SQL_command = "SELECT bookID FROM loan WHERE userID = '" + \
-            str(session['userID']) + "' AND returnDate = '' "
-        print(SQL_command)
-        cur.execute(SQL_command)
-        test = cur.fetchall()
-        print(test)
-        for t in test:
-            print(t)
+        currBooksID = refreshBorrowlisiting(cur)  
+        borrowedbooks = []
+        for book in currBooksID:
+            borrowedbooks.append(list(db.libraryCollection.find({'_id':  int(book)})))
+        currReservedID = refreshReservelisiting(cur)
+        reservedBooks = []
+        for book in currReservedID:
+            reservedBooks.append(list(db.libraryCollection.find({'_id':  int(book)})))
     con.commit()
-    return render_template('account.html')
+    return render_template('account.html', borrowedbooks= borrowedbooks, reservedBooks = reservedBooks)
 
 
 ##### START OF SignUp WORKS FINE #############
