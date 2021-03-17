@@ -22,7 +22,7 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-
+##### START OF LOGIN WORKS FINE #############
 @app.route('/')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -56,13 +56,13 @@ def login():
         except:
             flash("Email address of Password is empty!")
     return render_template('login.html')
-
+##### END OF LOGIN WORKS FINE #############
 
 @app.route('/library', methods=['GET', 'POST'])
 def library():
     if 'userID' in session:
         return render_template('library.html')
-    if request.method == 'POST':
+    if request.method == 'POST':  
         bookSearch = request.form['bookSearch']
         return redirect(url_for('results', bookSearch=bookSearch))
     return redirect(url_for('login'))
