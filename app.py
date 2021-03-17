@@ -58,7 +58,7 @@ def login():
                 else:
                     flash("wrong password or username")
         except:
-            wrongpassword = 1
+            print("help")
     return render_template('login.html')
 ##### END OF LOGIN WORKS FINE #############
 
@@ -161,12 +161,12 @@ def account():
 def signup():
     if request.method == 'POST':
         try:
-            userID = request.form['userID']
+            username = request.form['userID']
             # check if the username is in use before
             with sqlite3.connect("library.db") as con:
                 cur = con.cursor()
-                SQL_command = "SELECT userID FROM memberUser WHERE userID = '" + \
-                    str(userID) + "'"
+                SQL_command = "SELECT userName FROM userTable WHERE userName = '" + \
+                    str(username) + "'"
                 cur.execute(SQL_command)
                 rows = cur.fetchall()
                 sessionID = ""
@@ -186,7 +186,7 @@ def signup():
             unitNum = request.form['unitNum']
             postalCode = request.form['postalCode']
 
-            userNewEntry = (userID,
+            userNewEntry = (username,
                             userPassword,
                             email,
                             fName,
@@ -202,8 +202,7 @@ def signup():
 
             with sqlite3.connect("library.db") as con:
                 cur = con.cursor()
-                SQL_command = "INSERT INTO memberUser (userID, userPassword, email, fName, lName, phoneNum, blockNum, streetName, unitNum, postalCode) VALUES (?,?,?,?,?,?,?,?,?,?)"
-
+                SQL_command = "INSERT INTO userTable (userName, userPassword, email, fName, lName, phoneNum, blockNum, streetName, unitNum, postalCode) VALUES (?,?,?,?,?,?,?,?,?,?)"
                 print(SQL_command)
                 cur.execute(SQL_command, userNewEntry)
             con.commit()
