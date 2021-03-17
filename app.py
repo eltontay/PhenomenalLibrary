@@ -11,8 +11,11 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 conn = sqlite3.connect('library.db')
 print("Opened SQLdatabase successfully")
 # my trial server
+# client = pymongo.MongoClient(
+#     "mongodb+srv://admin:admin@phenomcluster.1j72v.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+
 client = pymongo.MongoClient(
-    "mongodb+srv://admin:admin@phenomcluster.1j72v.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+     "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
 db = client["libraryDatabase"]
 collection = db["libraryCollection"]
 
@@ -75,44 +78,11 @@ def library():
 @app.route('/library/results', methods=['GET', 'POST'])
 def results():
     bookSearch = request.form['bookSearch']
-    collection.find_all({
-        'title' :  bookSearch
-    })
     ##non fuzzy search
-    result = db.libraryCollection.find({
+    result = list(db.libraryCollection.find({
         'title' :  bookSearch
-    })
-    ## fuzzy Search
-#     result = list(collection.aggregate([
-#     {
-#         '$search': {
-#             'compound': {
-#                 'should': [
-#                     {
-#                         'text': {
-#                             'query': bookSearch, 
-#                             'path': [
-#                                 'title'
-#                             ], 
-#                             'score': {
-#                                 'boost': {
-#                                     'value': 5
-#                                 }
-#                             }
-#                         }
-#                     }, {
-#                         'text': {
-#                             'query': bookSearch, 
-#                             'path': [
-#                                 'categories', 'shortDescription','longDescription'
-#                             ]
-#                         }
-#                     }
-#                 ]
-#             }
-#         }
-#     }
-# ]))
+    }))
+    print(result)
     return render_template('results.html', bookSearch=bookSearch,result=result)
 
 
