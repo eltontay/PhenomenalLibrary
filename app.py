@@ -10,11 +10,13 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 # Database configuration
 conn = sqlite3.connect('library.db')
 print("Opened SQLdatabase successfully")
-# my trial server
+##### THIS LINK NEEDS TO CHANGE TO YOUR OWN LOCAL SERVER , DATABASE NAME , DATABASE COLLECTION #########
+# Localised Mongodb -> change the db to your database
 client = pymongo.MongoClient(
-    "mongodb+srv://admin:admin@phenomcluster.1j72v.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
 db = client["libraryDatabase"]
 collection = db["libraryCollection"]
+#######################################################################################################
 
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -23,6 +25,8 @@ def logout():
     return redirect(url_for('login'))
 
 ##### START OF LOGIN WORKS FINE #############
+
+
 @app.route('/')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -62,11 +66,12 @@ def login():
     return render_template('login.html')
 ##### END OF LOGIN WORKS FINE #############
 
+
 @app.route('/library', methods=['GET', 'POST'])
 def library():
     if 'userID' in session:
         return render_template('library.html')
-    if request.method == 'POST':  
+    if request.method == 'POST':
         bookSearch = request.form['bookSearch']
         return redirect(url_for('results', bookSearch=bookSearch))
     return redirect(url_for('login'))
@@ -75,45 +80,23 @@ def library():
 @app.route('/library/results', methods=['GET', 'POST'])
 def results():
     bookSearch = request.form['bookSearch']
-    collection.find_all({
-        'title' :  bookSearch
-    })
-    ##non fuzzy search
-    result = db.libraryCollection.find({
-        'title' :  bookSearch
-    })
-    ## fuzzy Search
-#     result = list(collection.aggregate([
-#     {
-#         '$search': {
-#             'compound': {
-#                 'should': [
-#                     {
-#                         'text': {
-#                             'query': bookSearch, 
-#                             'path': [
-#                                 'title'
-#                             ], 
-#                             'score': {
-#                                 'boost': {
-#                                     'value': 5
-#                                 }
-#                             }
-#                         }
-#                     }, {
-#                         'text': {
-#                             'query': bookSearch, 
-#                             'path': [
-#                                 'categories', 'shortDescription','longDescription'
-#                             ]
-#                         }
-#                     }
-#                 ]
-#             }
-#         }
-#     }
-# ]))
-    return render_template('results.html', bookSearch=bookSearch,result=result)
+    result = list(db.libraryCollection.aggregate([{
+        "$search": {
+            "text": {
+                "query": bookSearch,
+                "path": "title"
+            }
+        }
+    },
+        {
+            "$limit": 5
+    }
+    ]))
+    print(result)
+    for i in result:
+        print(i)
+        print("wahat")
+    return render_template('results.html', bookSearch=bookSearch, result=result)
 
 
 @ app.route('/library/results/reservationSuccess', methods=['GET', 'POST'])
