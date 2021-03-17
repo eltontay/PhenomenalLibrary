@@ -92,7 +92,7 @@ def results():
                         'text': {
                             'query': bookSearch, 
                             'path': [
-                                'authors', 'categories', 'shortDescription','longDescription'
+                                'categories', 'shortDescription','longDescription'
                             ]
                         }
                     }
