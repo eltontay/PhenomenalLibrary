@@ -142,6 +142,19 @@ def borrowSuccess():
 
 @ app.route('/account', methods=['GET', 'POST'])
 def account():
+    with sqlite3.connect("library.db") as con:
+        cur = con.cursor()
+
+        # loan
+        SQL_command = "SELECT bookID FROM loan WHERE userID = '" + \
+            str(session['userID']) + "' AND returnDate = '' "
+        print(SQL_command)
+        cur.execute(SQL_command)
+        test = cur.fetchall()
+        print(test)
+        for t in test:
+            print(t)
+    con.commit()
     return render_template('account.html')
 
 
