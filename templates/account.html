@@ -18,8 +18,28 @@
     <td>{{book[0]['title']}}</td>
     <td>{{book[0]['longDescription']}}</td>
     <td>
-     <a href="" class="btn btn-primary form-control viewmore">Return Book</a>
-     <a href="" class="btn btn-primary form-control viewmore">Extend Book</a> 
+
+      <form action="{{url_for('returnBook')}}" method="POST">
+        <button
+          value="{{book[0]['_id']}}"
+          name="_id"
+          type="submit"
+          width=100%
+          class="btn btn-primary form-control viewmore">
+          Return Book
+        </button>
+      </form>
+
+      <form action="{{url_for('extendLoan')}}" method="POST">
+        <button
+          value="{{book[0]['_id']}}"
+          name="_id"
+          type="submit"
+          width=100%
+          class="btn btn-primary form-control viewmore">
+          Extend Loan
+        </button>
+      </form>
     </td>
 </tr>
 

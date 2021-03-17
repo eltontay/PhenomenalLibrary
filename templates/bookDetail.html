@@ -18,7 +18,7 @@
 {% endif %}
 
 <!--if it is available-->
-{% if availability and not userHasBooks %}
+{% if availability and reserved and not userHasBooks %}
 <form action="{{ url_for('borrowSuccess')}}" method="POST">
     <button
       value="{{i['_id']}}"

@@ -104,7 +104,8 @@ def reservationSuccess():
         # print(SQL_command)
         cur.execute(SQL_command, loanEntry)
     con.commit()
-    return render_template('reservationSuccess.html', result=result)
+    notification = "Your reservation for "+result[0]['title'] +" is successful!"
+    return render_template('notification.html', notification=notification)
 
 
 @ app.route('/library/results/borrowSuccess', methods=['GET', 'POST'])
@@ -143,7 +144,8 @@ def borrowSuccess():
         cur.execute(SQL_command, loanEntry)
 
     con.commit()
-    return render_template('borrowSuccess.html', result=result)
+    notification = "Your borrowing for "+result[0]['title'] +" is successful!"
+    return render_template('notification.html', notification=notification)
 
 
 @ app.route('/account', methods=['GET', 'POST'])
@@ -160,6 +162,74 @@ def account():
             reservedBooks.append(list(db.libraryCollection.find({'_id':  int(book)})))
     con.commit()
     return render_template('account.html', borrowedbooks= borrowedbooks, reservedBooks = reservedBooks)
+
+@ app.route('/extendLoan', methods=['GET', 'POST'])
+def extendLoan():
+    _id = request.form['_id']
+    result = list(db.libraryCollection.find({
+        '_id':  int(_id)
+    }))
+    with sqlite3.connect("library.db") as con:
+        cur = con.cursor()
+        SQL_command = "SELECT loanID, dueDate from loan WHERE userID = '" + session['userID'] + "'" \
+                                               "AND bookID = '" + str(_id) + "'" \
+                                               "AND returnDate = '' "
+        cur.execute(SQL_command)
+        print(SQL_command)
+        rows = cur.fetchall()
+        for row in rows:
+            loanID = row[0]
+            dueDate = row[1]
+        print(loanID)
+        print(dueDate)
+        
+        # d = date.today().strftime("%d/%m/%y")
+        # dd = datetime.datetime.strptime(d, "%d/%m/%y") + datetime.timedelta(days=28)
+        # dd = dd.strftime("%d/%m/%y")
+        
+        
+        dd = datetime.datetime.strptime(str(dueDate), "%d/%m/%y") + datetime.timedelta(days=28)
+        
+        dd = dd.strftime("%d/%m/%y") 
+        print(dd)
+        # update date base on ID
+           
+        SQL_command = "UPDATE loan SET dueDate = (?) WHERE loanID = '" + str(loanID) + "'"
+        cur.execute(SQL_command,[dd])
+        notification = result[0]['title'] +" has been successfully extended"
+    return render_template('notification.html', notification=notification)
+    
+@ app.route('/returnBook', methods=['GET', 'POST'])
+def returnBook():
+    _id = request.form['_id']
+    result = list(db.libraryCollection.find({
+        '_id':  int(_id)
+    }))
+    
+    with sqlite3.connect("library.db") as con:
+        cur = con.cursor()
+        # Get Loan ID
+        SQL_command = "SELECT loanID from loan WHERE userID = '" + session['userID'] + "'" \
+                                               "AND bookID = '" + str(_id) + "'" \
+                                               "AND returnDate = '' "
+        cur.execute(SQL_command)
+        rows = cur.fetchall()
+        for row in rows:
+            loanID = row[0]
+       
+        # update date base on ID
+        SQL_command = "UPDATE loan SET returnDate = CURRENT_TIMESTAMP WHERE loanID = '" + str(loanID) + "'"
+        cur.execute(SQL_command)
+        ## Update the return Date 
+        SQL_command = "UPDATE book SET availability = TRUE WHERE bookID = '" + str(_id) + "'"
+        cur.execute(SQL_command)
+        
+        
+        ## Calculate Fine if have
+        ## make sure that reservation working
+        notification = result[0]['title'] + " has been returned!"
+    return render_template('notification.html', notification = notification)
+
 
 
 ##### START OF SignUp WORKS FINE #############

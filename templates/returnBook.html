@@ -1,12 +1,10 @@
 {% include "library.html" %} 
-
 {% block content %}
 
-{% for i in result %}
-<p>{{i['title']}}</p>
 
-<h1>Your borrowing for {{i['title']}} is successful!</h1>
+<h1>{{booktitle}} has been returned!</h1>
  
-{% endfor %}
+
 <a href="{{url_for('library')}}" class="btn btn-primary form-control viewmore">return to library </a>
+
 {% endblock %}
