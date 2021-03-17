@@ -33,10 +33,11 @@ def login():
             userPassword = request.form['userPassword']
             print("username: " + username + " password " + userPassword)
             if username == "" or userPassword == "":
+                flash("Email address of Password is empty!")
                 quit()
             with sqlite3.connect("library.db") as con:
                 cur = con.cursor()
-                SQL_command = "SELECT userID, userPassword FROM memberUser WHERE userID = '" + \
+                SQL_command = "SELECT userName, userPassword FROM userTable WHERE userName = '" + \
                     str(username) + "'"
                 cur.execute(SQL_command)
                 print(SQL_command)
@@ -48,13 +49,16 @@ def login():
                     actualpassword = row[1]
                 print("comes here leh password: " + sessionID +
                       " antoher one ius :" + actualpassword)
+                print(actualpassword)
+                print(userPassword)
                 if str(actualpassword) == str(userPassword):
+                    print("got leh")
                     session['userID'] = sessionID
                     return redirect(url_for('library'))
                 else:
                     flash("wrong password or username")
         except:
-            flash("Email address of Password is empty!")
+            wrongpassword = 1
     return render_template('login.html')
 ##### END OF LOGIN WORKS FINE #############
 
@@ -74,6 +78,11 @@ def results():
     collection.find_all({
         'title' :  bookSearch
     })
+    ##non fuzzy search
+    result = db.libraryCollection.find({
+        'title' :  bookSearch
+    })
+    ## fuzzy Search
 #     result = list(collection.aggregate([
 #     {
 #         '$search': {
