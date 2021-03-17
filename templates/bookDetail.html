@@ -11,7 +11,14 @@
 <p>{{i['categories']}}</p>
 
 
-{% if availability %}
+<!--If you already have this book somewhere reserved or borrowed-->
+
+{% if userHasBooks%}
+     <p>You already have this book in your borrowed or reserved.</p>
+{% endif %}
+
+<!--if it is available-->
+{% if availability and not userHasBooks %}
 <form action="{{ url_for('borrowSuccess')}}" method="POST">
     <button
       value="{{i['_id']}}"
@@ -26,8 +33,8 @@
 {% endif %}
 
 
-
-{% if not availability and reserved %}
+<!--If it is not avail but reservable-->
+{% if not availability and reserved and not userHasBooks %}
 <form action="{{url_for('reservationSuccess')}}" method="POST">
     <button
       value="{{i['_id']}}"
@@ -41,10 +48,13 @@
   </form>
 {% endif %}
 
+
+<!--Not avial and reservable and you dont own it-->
 {% if not availability and not reserved %}
 <p>rabak bro</p> 
 {% endif %}
 
 {% endfor %}
+
 
 {% endblock %}
