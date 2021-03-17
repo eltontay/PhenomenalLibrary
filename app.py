@@ -71,36 +71,39 @@ def library():
 @app.route('/library/results', methods=['GET', 'POST'])
 def results():
     bookSearch = request.form['bookSearch']
-    result = list(collection.aggregate([
-    {
-        '$search': {
-            'compound': {
-                'should': [
-                    {
-                        'text': {
-                            'query': bookSearch, 
-                            'path': [
-                                'title'
-                            ], 
-                            'score': {
-                                'boost': {
-                                    'value': 5
-                                }
-                            }
-                        }
-                    }, {
-                        'text': {
-                            'query': bookSearch, 
-                            'path': [
-                                'categories', 'shortDescription','longDescription'
-                            ]
-                        }
-                    }
-                ]
-            }
-        }
-    }
-]))
+    collection.find_all({
+        'title' :  bookSearch
+    })
+#     result = list(collection.aggregate([
+#     {
+#         '$search': {
+#             'compound': {
+#                 'should': [
+#                     {
+#                         'text': {
+#                             'query': bookSearch, 
+#                             'path': [
+#                                 'title'
+#                             ], 
+#                             'score': {
+#                                 'boost': {
+#                                     'value': 5
+#                                 }
+#                             }
+#                         }
+#                     }, {
+#                         'text': {
+#                             'query': bookSearch, 
+#                             'path': [
+#                                 'categories', 'shortDescription','longDescription'
+#                             ]
+#                         }
+#                     }
+#                 ]
+#             }
+#         }
+#     }
+# ]))
     return render_template('results.html', bookSearch=bookSearch,result=result)
 
 
