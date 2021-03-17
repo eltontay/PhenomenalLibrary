@@ -59,9 +59,9 @@ def results():
             if bookSearch == "" and bookAuthor == "" and bookCategory == "":
                 flash("Please input at least one query")
                 quit()
-            # Elton -> not so sure how to put all 3 queries here. To try another day
             result = list(collection.find(
-                {"$text": {"$search": bookSearch}}))
+                {"$text": {"$search": "" +
+                           str(bookSearch) + " " + str(bookAuthor) + " " + str(bookCategory) + "'"}}))
             # result = db.libraryCollection.find({"title" : bookSearch})
             return render_template('results.html', bookSearch=bookSearch, result=result)
         except:
