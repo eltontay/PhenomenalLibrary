@@ -36,7 +36,7 @@ def login():
                 quit()
             with sqlite3.connect("library.db") as con:
                 cur = con.cursor()
-                SQL_command = "SELECT userName, userPassword FROM userTable WHERE userName = '" + \
+                SQL_command = "SELECT userID, userPassword FROM memberUser WHERE userID = '" + \
                     str(username) + "'"
                 cur.execute(SQL_command)
                 print(SQL_command)
@@ -71,10 +71,40 @@ def library():
 @app.route('/library/results', methods=['GET', 'POST'])
 def results():
     bookSearch = request.form['bookSearch']
-    return render_template('results.html', bookSearch=bookSearch)
+    result = list(collection.aggregate([
+    {
+        '$search': {
+            'compound': {
+                'should': [
+                    {
+                        'text': {
+                            'query': bookSearch, 
+                            'path': [
+                                'title'
+                            ], 
+                            'score': {
+                                'boost': {
+                                    'value': 5
+                                }
+                            }
+                        }
+                    }, {
+                        'text': {
+                            'query': bookSearch, 
+                            'path': [
+                                'authors', 'categories', 'shortDescription','longDescription'
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    }
+]))
+    return render_template('results.html', bookSearch=bookSearch,result=result)
 
 
-@app.route('/library/results/reservationSuccess', methods=['GET', 'POST'])
+@ app.route('/library/results/reservationSuccess', methods=['GET', 'POST'])
 def reservationSuccess():
     _id = request.form['_id']
     result = collection.find_one({'_id': int(_id)})
@@ -89,7 +119,7 @@ def reservationSuccess():
     return render_template('reservationSuccess.html', result=result)
 
 
-@app.route('/library/results/borrowSuccess', methods=['GET', 'POST'])
+@ app.route('/library/results/borrowSuccess', methods=['GET', 'POST'])
 def borrowSuccess():
     _id = request.form['_id']
     result = collection.find_one({'_id': int(_id)})
@@ -114,17 +144,17 @@ def borrowSuccess():
 def account():
     return render_template('account.html')
 
-##### START OF SIGNUP WORKS FINE #############
+
 @ app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         try:
-            username = request.form['userID']
+            userID = request.form['userID']
             # check if the username is in use before
             with sqlite3.connect("library.db") as con:
                 cur = con.cursor()
-                SQL_command = "SELECT userName FROM userTable WHERE userName = '" + \
-                    str(username) + "'"
+                SQL_command = "SELECT userID FROM memberUser WHERE userID = '" + \
+                    str(userID) + "'"
                 cur.execute(SQL_command)
                 rows = cur.fetchall()
                 sessionID = ""
@@ -144,7 +174,7 @@ def signup():
             unitNum = request.form['unitNum']
             postalCode = request.form['postalCode']
 
-            userNewEntry = (username,
+            userNewEntry = (userID,
                             userPassword,
                             email,
                             fName,
@@ -160,7 +190,8 @@ def signup():
 
             with sqlite3.connect("library.db") as con:
                 cur = con.cursor()
-                SQL_command = "INSERT INTO userTable (userName, userPassword, email, fName, lName, phoneNum, blockNum, streetName, unitNum, postalCode) VALUES (?,?,?,?,?,?,?,?,?,?)"
+                SQL_command = "INSERT INTO memberUser (userID, userPassword, email, fName, lName, phoneNum, blockNum, streetName, unitNum, postalCode) VALUES (?,?,?,?,?,?,?,?,?,?)"
+
                 print(SQL_command)
                 cur.execute(SQL_command, userNewEntry)
             con.commit()
@@ -172,7 +203,7 @@ def signup():
 
         con.close()
     return render_template('signup.html')
-##### END OF SIGNUP WORKS FINE #############
+
 
 if __name__ == '__main__':
     app.run(debug=True)
