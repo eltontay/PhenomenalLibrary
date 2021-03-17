@@ -14,11 +14,11 @@ print("Opened SQLdatabase successfully")
 # Localised Mongodb -> change the db to your database
 
 # Lundy COnnectionc
-# client = pymongo.MongoClient(
-#     "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
-# Elton Connection
 client = pymongo.MongoClient(
-    "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
+    "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
+# Elton Connection
+# client = pymongo.MongoClient(
+#     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
 db = client["libraryDatabase"]
 collection = db["libraryCollection"]
 
@@ -28,12 +28,16 @@ collection = db["libraryCollection"]
 @ app.route('/book/<int:bookid>', methods=['GET', 'POST'])
 def bookDetail(bookid):
     # get book detail
-    result = list(db.libraryCollection.find({
-        '_id':  bookid
-    }))
+    result = list(db.libraryCollection.find({'_id':  bookid}))
     # get book availability
     with sqlite3.connect("library.db") as con:
         cur = con.cursor()
+
+        userHasBooks = str(bookid) in refreshBorrowlisiting(
+            cur) or str(bookid) in refreshReservelisiting(cur)
+
+        print(userHasBooks)
+
         SQL_command = "SELECT availability, reservedAvailability FROM book WHERE bookID = '" + \
             str(bookid) + "'"
         cur.execute(SQL_command)
@@ -41,9 +45,7 @@ def bookDetail(bookid):
         for row in rows:
             availability = row[0]
             reserved = row[1]
-        print(reserved)
-
-    return render_template('bookDetail.html', result=result, availability=availability, reserved=reserved)
+    return render_template('bookDetail.html', result=result, availability=availability, reserved=reserved, userHasBooks=userHasBooks)
 
 # in order to use the search function, need to assign indexes, i input the below command in mongo shell
 # db.libraryCollection.createIndex({title:"text",shortDescription:"text",longDescription:"text"})
@@ -56,13 +58,13 @@ def results():
             bookSearch = request.form['bookSearch']
             bookAuthor = request.form['author']
             bookCategory = request.form['category']
-            if bookSearch == "" and bookAuthor == "" and bookCategory == "":
-                flash("Please input at least one query")
-                quit()
-            result = list(collection.find(
-                {"$text": {"$search": "" +
-                           str(bookSearch) + " " + str(bookAuthor) + " " + str(bookCategory) + "'"}}))
-            # result = db.libraryCollection.find({"title" : bookSearch})
+            # if bookSearch == "" and bookAuthor == "" and bookCategory == "":
+            #     flash("Please input at least one query")
+            #     quit()
+            # result = list(collection.find(
+            #     {"$text": {"$search": "" +
+            #                str(bookSearch) + " " + str(bookAuthor) + " " + str(bookCategory) + "'"}}))
+            result = db.libraryCollection.find({"title": bookSearch})
             return render_template('results.html', bookSearch=bookSearch, result=result)
         except:
             print("help")
@@ -238,19 +240,13 @@ def login():
                 SQL_command = "SELECT userID, userPassword FROM userTable WHERE userName = '" + \
                     str(username) + "'"
                 cur.execute(SQL_command)
-                print(SQL_command)
                 rows = cur.fetchall()
                 actualpassword = ""
                 sessionID = ""
                 for row in rows:
                     sessionID = str(row[0])
                     actualpassword = row[1]
-                print("comes here leh password: " + sessionID +
-                      " antoher one ius :" + actualpassword)
-                print(actualpassword)
-                print(userPassword)
                 if str(actualpassword) == str(userPassword):
-                    print("got leh")
                     session['userID'] = sessionID
                     return redirect(url_for('library'))
                 else:
@@ -281,6 +277,30 @@ def library():
         return redirect(url_for('results', bookSearch=bookSearch))
     return redirect(url_for('login'))
 ##### END OF library WORKS FINE #############
+
+
+def refreshBorrowlisiting(cur):
+    # get additional information about the borrowed books they hold and store in a variable
+    SQL_command = "SELECT bookID FROM loan WHERE returnDate = '' AND userID = '" + \
+        session['userID'] + "'"
+    cur.execute(SQL_command)
+    rows = cur.fetchall()
+    result = []
+    for row in rows:
+        result.append(str(row[0]))
+    return result
+
+
+def refreshReservelisiting(cur):
+    # get additional information about the borrowed books they hold and store in a variable
+    SQL_command = "SELECT bookID FROM reserve WHERE endDate = '' AND userID = '" + \
+        session['userID'] + "'"
+    cur.execute(SQL_command)
+    rows = cur.fetchall()
+    result = []
+    for row in rows:
+        result.append(str(row[0]))
+    return result
 
 
 if __name__ == '__main__':
