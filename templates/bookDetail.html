@@ -8,13 +8,42 @@
 <p>{{i['longDescription']}}</p>
 <p>{{i['authors']}}</p>
 <p>{{i['categories']}}</p>
-{% endfor %}
 
-<p>Available:</p>
+
 {% if availability %}
-<p> Available </p>
-
+<form action="{{ url_for('borrowSuccess')}}" method="POST">
+    <button
+      value="{{i['_id']}}"
+      name="_id"
+      type="submit"
+      width=100%
+      class="btn btn-primary form-control viewmore"
+    >
+      BorrowBook
+    </button>
+  </form>
 {% endif %}
 
+
+
+{% if not availability and reserved %}
+<form action="{{ url_for('borrowSuccess')}}" method="POST">
+    <button
+      value="{{i['_id']}}"
+      name="_id"
+      type="submit"
+      width=100%
+      class="btn btn-primary form-control viewmore"
+    >
+      Reserve
+    </button>
+  </form>
+{% endif %}
+
+{% if not availability and not reserved %}
+<p>rabak bro</p> 
+{% endif %}
+
+{% endfor %}
 
 {% endblock %}

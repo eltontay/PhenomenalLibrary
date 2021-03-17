@@ -88,13 +88,15 @@ def bookDetail(bookid):
     #get book availability 
     with sqlite3.connect("library.db") as con:
         cur = con.cursor()
-        SQL_command = "SELECT availability FROM book WHERE bookID = '" + \
+        SQL_command = "SELECT availability, reservedAvailability FROM book WHERE bookID = '" + \
             str(bookid) + "'"
         cur.execute(SQL_command)
         rows = cur.fetchall()
         for row in rows:
             availability = row[0]
-    return render_template('bookDetail.html', result=result, availability=availability)
+            reserved = row[1]
+        print(reserved)
+    return render_template('bookDetail.html', result=result, availability=availability, reserved=reserved)
 
 
 @app.route('/library/results', methods=['GET', 'POST'])
