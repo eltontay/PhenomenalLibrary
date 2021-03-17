@@ -2,6 +2,7 @@ from flask import Flask, session, redirect, flash, render_template, request, url
 from markupsafe import escape
 from datetime import date
 import sqlite3
+import datetime
 import pymongo
 
 app = Flask(__name__, template_folder='templates')
@@ -133,8 +134,11 @@ def borrowSuccess():
 
         # update loan status
         d = date.today().strftime("%d/%m/%y")
-        SQL_command = "INSERT INTO loan (userID, bookID, borrowDate, returnDate) VALUES (?,?,?,?)"
-        loanEntry = (session['userID'], str(_id), d, '')
+        dd = datetime.datetime.strptime(d, "%d/%m/%y") + datetime.timedelta(days=28)
+        dd = dd.strftime("%d/%m/%y")
+        
+        SQL_command = "INSERT INTO loan (userID, bookID, borrowDate, dueDate, returnDate) VALUES (?,?,?,?,?)"
+        loanEntry = (session['userID'], str(_id), d,dd, '')
         # print(SQL_command)
         cur.execute(SQL_command, loanEntry)
 
