@@ -10,12 +10,16 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 # Database configuration
 conn = sqlite3.connect('library.db')
 print("Opened SQLdatabase successfully")
-# my trial server
-# client = pymongo.MongoClient(
-#     "mongodb+srv://admin:admin@phenomcluster.1j72v.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+##### THIS LINK NEEDS TO CHANGE TO YOUR OWN LOCAL SERVER , DATABASE NAME , DATABASE COLLECTION #########
+# Localised Mongodb -> change the db to your database
 
+# Lundy COnnectionc
 client = pymongo.MongoClient(
      "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
+
+# Elton connection
+# client = pymongo.MongoClient(
+#     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
 db = client["libraryDatabase"]
 collection = db["libraryCollection"]
 #######################################################################################################
@@ -26,47 +30,6 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-##### START OF LOGIN WORKS FINE #############
-
-
-@app.route('/')
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    # return render_template('login.html')
-    if request.method == 'POST':
-        try:
-            username = request.form['username']
-            userPassword = request.form['userPassword']
-            print("username: " + username + " password " + userPassword)
-            if username == "" or userPassword == "":
-                flash("Email address of Password is empty!")
-                quit()
-            with sqlite3.connect("library.db") as con:
-                cur = con.cursor()
-                SQL_command = "SELECT userName, userPassword FROM userTable WHERE userName = '" + \
-                    str(username) + "'"
-                cur.execute(SQL_command)
-                print(SQL_command)
-                rows = cur.fetchall()
-                actualpassword = ""
-                sessionID = ""
-                for row in rows:
-                    sessionID = row[0]
-                    actualpassword = row[1]
-                print("comes here leh password: " + sessionID +
-                      " antoher one ius :" + actualpassword)
-                print(actualpassword)
-                print(userPassword)
-                if str(actualpassword) == str(userPassword):
-                    print("got leh")
-                    session['userID'] = sessionID
-                    return redirect(url_for('library'))
-                else:
-                    flash("wrong password or username")
-        except:
-            print("help")
-    return render_template('login.html')
-##### END OF LOGIN WORKS FINE #############
 
 
 @app.route('/library', methods=['GET', 'POST'])
@@ -96,18 +59,21 @@ def bookDetail(bookid):
             availability = row[0]
             reserved = row[1]
         print(reserved)
+        
     return render_template('bookDetail.html', result=result, availability=availability, reserved=reserved)
 
 
 @app.route('/library/results', methods=['GET', 'POST'])
 def results():
     bookSearch = request.form['bookSearch']
-    ##non fuzzy search
-    result = list(db.libraryCollection.find({
-        'title' :  bookSearch
-    }))
+    # list(db.libraryCollection.find({"title" : bookSearch }))
+    result = list(db.libraryCollection.find({"title" : bookSearch })) ##fuck this
+    
     print(result)
-    return render_template('results.html', bookSearch=bookSearch,result=result)
+    for i in result:
+        print(i)
+        print("wahat")
+    return render_template('results.html', bookSearch=bookSearch, result=result)
 
 
 @ app.route('/library/results/reservationSuccess', methods=['GET', 'POST'])
@@ -146,13 +112,11 @@ def borrowSuccess():
     return render_template('borrowSuccess.html', result=result)
 
 
-
 @ app.route('/account', methods=['GET', 'POST'])
 def account():
     return render_template('account.html')
 
 
-## done dont touch #####
 @ app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -210,7 +174,47 @@ def signup():
 
         con.close()
     return render_template('signup.html')
-## done dont touch #####
+
+##### START OF LOGIN WORKS FINE #############
+@app.route('/')
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    # return render_template('login.html')
+    if request.method == 'POST':
+        try:
+            username = request.form['username']
+            userPassword = request.form['userPassword']
+            print("username: " + username + " password " + userPassword)
+            if username == "" or userPassword == "":
+                flash("Email address of Password is empty!")
+                quit()
+            with sqlite3.connect("library.db") as con:
+                cur = con.cursor()
+                SQL_command = "SELECT userName, userPassword FROM userTable WHERE userName = '" + \
+                    str(username) + "'"
+                cur.execute(SQL_command)
+                print(SQL_command)
+                rows = cur.fetchall()
+                actualpassword = ""
+                sessionID = ""
+                for row in rows:
+                    sessionID = row[0]
+                    actualpassword = row[1]
+                print("comes here leh password: " + sessionID +
+                      " antoher one ius :" + actualpassword)
+                print(actualpassword)
+                print(userPassword)
+                if str(actualpassword) == str(userPassword):
+                    print("got leh")
+                    session['userID'] = sessionID
+                    return redirect(url_for('library'))
+                else:
+                    flash("wrong password or username")
+        except:
+            print("help")
+    return render_template('login.html')
+##### END OF LOGIN WORKS FINE #############
+
 
 if __name__ == '__main__':
     app.run(debug=True)
