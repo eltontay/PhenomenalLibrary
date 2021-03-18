@@ -281,8 +281,6 @@ def reserveToBorrow():
             return render_template('notification.html', notification=notification)
         
         #end reservation
-        
-        
         ##book is avail and less than four books
         borrowBookBaseOnID(cur,_id)
     
@@ -293,9 +291,6 @@ def reserveToBorrow():
 ##############################################################################################################
 #                                   END OF ACCOUNT PAGE and Functionality
 ##############################################################################################################
-
-
-
 
 
 
