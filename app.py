@@ -44,7 +44,6 @@ def bookDetail(bookid):
         cur.execute(SQL_command)
         rows = cur.fetchall()
         for row in rows:
-            print(row)
             availability = row[0]
             reserved = row[1]
     return render_template('bookDetail.html', result=result, availability=availability, reserved=reserved, userHasBooks=userHasBooks)
