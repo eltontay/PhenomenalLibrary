@@ -119,13 +119,14 @@ def borrowSuccess():
         cur = con.cursor()
 
         # first count how many books the brother got borrowed
-        SQL_command = "SELECT COUNT(returnDate = '') FROM loan WHERE userID =  '" + \
-            str(session['userID']) + "'"
+        SQL_command = "SELECT COUNT(returnDate)  FROM loan WHERE userID =  '" + \
+            str(session['userID']) + "' AND (returnDate = '' or returnDate = NULL)"
         print(SQL_command)
         cur.execute(SQL_command)
         numofBooks = cur.fetchall()
         if numofBooks[0][0] >= 4:
-            return render_template('borrowFail.html', transactionType="borrow")
+            notification = "brother cannot la more than 4 books borrowed liao"
+            return render_template('notification.html', notification=notification)
 
         # first update book status
         SQL_command = "UPDATE Book SET availability = FALSE WHERE bookID = '" + \
@@ -169,31 +170,40 @@ def extendLoan():
     result = list(db.libraryCollection.find({
         '_id':  int(_id)
     }))
+    
     with sqlite3.connect("library.db") as con:
         cur = con.cursor()
-        SQL_command = "SELECT loanID, dueDate from loan WHERE userID = '" + session['userID'] + "'" \
+        
+        ## check if can extend Loan
+        SQL_command = "SELECT reservedAvailability from book WHERE bookID = '" + str(_id) + "'"
+        cur.execute(SQL_command)
+        rows = cur.fetchall()
+        for row in rows:
+            ISreserved = row[0]
+        
+        if not ISreserved:
+            notification = "Sorry, this book has been reserved and the loan cannot be extended"
+            return render_template('notification.html', notification=notification)
+        
+        SQL_command = "SELECT loanID, dueDate, borrowDate from loan WHERE userID = '" + session['userID'] + "'" \
                                                "AND bookID = '" + str(_id) + "'" \
                                                "AND returnDate = '' "
         cur.execute(SQL_command)
-        print(SQL_command)
         rows = cur.fetchall()
         for row in rows:
             loanID = row[0]
             dueDate = row[1]
-        print(loanID)
-        print(dueDate)
-        
-        # d = date.today().strftime("%d/%m/%y")
-        # dd = datetime.datetime.strptime(d, "%d/%m/%y") + datetime.timedelta(days=28)
-        # dd = dd.strftime("%d/%m/%y")
-        
+            borrowDate = row[2]
+            
+        # check if it has been extended before
+        if days_between(borrowDate, dueDate):
+            notification = "Sorry, this book has been extended before"
+            return render_template('notification.html', notification=notification)
         
         dd = datetime.datetime.strptime(str(dueDate), "%d/%m/%y") + datetime.timedelta(days=28)
-        
         dd = dd.strftime("%d/%m/%y") 
-        print(dd)
+     
         # update date base on ID
-           
         SQL_command = "UPDATE loan SET dueDate = (?) WHERE loanID = '" + str(loanID) + "'"
         cur.execute(SQL_command,[dd])
         notification = result[0]['title'] +" has been successfully extended"
@@ -220,10 +230,10 @@ def returnBook():
         # update date base on ID
         SQL_command = "UPDATE loan SET returnDate = CURRENT_TIMESTAMP WHERE loanID = '" + str(loanID) + "'"
         cur.execute(SQL_command)
+        
         ## Update the return Date 
         SQL_command = "UPDATE book SET availability = TRUE WHERE bookID = '" + str(_id) + "'"
         cur.execute(SQL_command)
-        
         
         ## Calculate Fine if have
         ## make sure that reservation working
@@ -374,6 +384,10 @@ def refreshReservelisiting(cur):
         result.append(str(row[0]))
     return result
 
+def days_between(d1, d2):
+    d1 = datetime.datetime.strptime(str(d1), "%d/%m/%y")
+    d2 = datetime.datetime.strptime(str(d2), "%d/%m/%y")
+    return (abs((d2 - d1).days) > 50)
 
 if __name__ == '__main__':
     app.run(debug=True)
