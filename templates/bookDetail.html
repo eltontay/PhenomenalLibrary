@@ -1,6 +1,4 @@
-{% include "library.html" %} {% block content %}
-
-{% for i in result %}
+{% include "library.html" %} {% block content %} {% for i in result %}
 <p>{{i['title']}}</p>
 <p>{{i['isbn']}}</p>
 <p>{{i['pageCount']}}</p>
@@ -10,51 +8,51 @@
 <p>{{i['authors']}}</p>
 <p>{{i['categories']}}</p>
 
-
 <!--If you already have this book somewhere reserved or borrowed-->
 
 {% if userHasBooks%}
-     <p>You already have this book in your borrowed or reserved.</p>
+<p>You already have this book in your borrowed or reserved.</p>
 {% endif %}
 
 <!--if it is available-->
 {% if availability and reserved and not userHasBooks %}
 <form action="{{ url_for('borrowSuccess')}}" method="POST">
-    <button
-      value="{{i['_id']}}"
-      name="_id"
-      type="submit"
-      width=100%
-      class="btn btn-primary form-control viewmore"
-    >
-      BorrowBook
-    </button>
-  </form>
+  <button
+    value="{{i['_id']}}"
+    name="_id"
+    type="submit"
+    width="100%"
+    class="btn btn-primary form-control viewmore"
+  >
+    BorrowBook
+  </button>
+</form>
 {% endif %}
-
 
 <!--If it is not avail but reservable-->
 {% if not availability and reserved and not userHasBooks %}
 <form action="{{url_for('reservationSuccess')}}" method="POST">
-    <button
-      value="{{i['_id']}}"
-      name="_id"
-      type="submit"
-      width=100%
-      class="btn btn-primary form-control viewmore"
-    >
-      Reserve
-    </button>
-  </form>
+  <button
+    value="{{i['_id']}}"
+    name="_id"
+    type="submit"
+    width="100%"
+    class="btn btn-primary form-control viewmore"
+  >
+    Reserve
+  </button>
+</form>
 {% endif %}
-
 
 <!--Not avial and reservable and you dont own it-->
 {% if not availability and not reserved %}
-<p>rabak bro</p> 
-{% endif %}
+<a href="{{url_for('library')}}" class="btn btn-primary form-control viewmore"
+  >Not available at the moment.. Check back next time? Lets go back!</a
+>{% endif %}
 
-{% endfor %}
-
-
-{% endblock %}
+<!-- avail and reserved , someone chope it alr-->
+{% if availability and not reserved %}
+<a href="{{url_for('library')}}" class="btn btn-primary form-control viewmore"
+  >One step too late! Someone has already reserved it! Lets go back!</a
+>
+{% endif %} {% endfor %} {% endblock %}
