@@ -26,6 +26,22 @@ collection = db["libraryCollection"]
 # books in specific
 
 
+##############################################################################################################
+#                                   START OF ACCOUNT PAGE and Functionality
+##############################################################################################################
+
+##### START OF Library WORKS FINE #############
+@ app.route('/library', methods=['GET', 'POST'])
+def library():
+    if 'userID' in session:
+        return render_template('library.html')
+    if request.method == 'POST':
+        bookSearch = request.form['bookSearch']
+        return redirect(url_for('results', bookSearch=bookSearch))
+    return redirect(url_for('login'))
+##### END OF library WORKS FINE #############
+
+
 @ app.route('/book/<int:bookid>', methods=['GET', 'POST'])
 def bookDetail(bookid):
     # get book detail
@@ -149,10 +165,15 @@ def borrowSuccess():
 
 
 ##############################################################################################################
+#                                   END OF Library PAGE and Functionality
+##############################################################################################################
+
+
+
 ##############################################################################################################
 #                                   START OF ACCOUNT PAGE and Functionality
 ##############################################################################################################
-##############################################################################################################
+
 @ app.route('/account', methods=['GET', 'POST'])
 def account():
     with sqlite3.connect("library.db") as con:
@@ -229,7 +250,7 @@ def returnBook():
         # Get Loan ID
         SQL_command = "SELECT loanID from loan WHERE userID = '" + session['userID'] + "'" \
             "AND bookID = '" + str(_id) + "'" \
-            "AND returnDate = '' "
+            "AND (returnDate = '' or returnDate = NULL) "
         cur.execute(SQL_command)
         rows = cur.fetchall()
         for row in rows:
@@ -248,17 +269,52 @@ def returnBook():
         ## make sure that reservation working
         notification = result[0]['title'] + " has been returned!"
     return render_template('notification.html', notification = notification)
-##############################################################################################################
+
+@ app.route('/cancelReservation', methods=['GET', 'POST'])
+def cancelReservation():
+    _id = request.form['_id']
+    result = list(db.libraryCollection.find({
+        '_id':  int(_id)
+    }))
+    with sqlite3.connect("library.db") as con:
+        cur = con.cursor()
+        # Get Loan ID
+        SQL_command = "SELECT reserveID from reserve WHERE userID = '" + session['userID'] + "'" \
+            "AND bookID = '" + str(_id) + "'" \
+            "AND (endDate = '' or endDate = NULL)"
+        cur.execute(SQL_command)
+        rows = cur.fetchall()
+        for row in rows:
+            reserveID = row[0]
+
+        # update on reserve table
+        SQL_command = "UPDATE reserve SET endDate = CURRENT_TIMESTAMP WHERE reserveID = '" + \
+            str(reserveID) + "'"
+        cur.execute(SQL_command)
+        
+        ## Update on book side
+        SQL_command = "UPDATE book SET reservedAvailability = TRUE WHERE bookID = '" + str(_id) + "'"
+        cur.execute(SQL_command)
+        
+        ## Calculate Fine if have
+        ## make sure that reservation working
+        notification = " Your reservation for "+ result[0]['title'] +" has been cancelled!"
+    return render_template('notification.html', notification = notification)
+
+
 ##############################################################################################################
 #                                   END OF ACCOUNT PAGE and Functionality
 ##############################################################################################################
-##############################################################################################################
+
+
+
+
+
 
 
 ##############################################################################################################
 #                                   Start OF Account creation and login
 ##############################################################################################################
-
 
 ##### START OF SignUp WORKS FINE #############
 @ app.route('/signup', methods=['GET', 'POST'])
@@ -367,7 +423,7 @@ def logout():
 
 def refreshBorrowlisiting(cur):
     # get additional information about the borrowed books they hold and store in a variable
-    SQL_command = "SELECT bookID FROM loan WHERE returnDate = '' AND userID = '" + \
+    SQL_command = "SELECT bookID FROM loan WHERE (returnDate = '' or returnDate = NULL) AND userID = '" + \
         session['userID'] + "'"
     cur.execute(SQL_command)
     rows = cur.fetchall()
@@ -378,7 +434,7 @@ def refreshBorrowlisiting(cur):
 
 def refreshReservelisiting(cur):
     # get additional information about the borrowed books they hold and store in a variable
-    SQL_command = "SELECT bookID FROM reserve WHERE endDate = '' AND userID = '" + \
+    SQL_command = "SELECT bookID FROM reserve WHERE (endDate = '' or endDate = NULL) AND userID = '" + \
         session['userID'] + "'"
     cur.execute(SQL_command)
     rows = cur.fetchall()
