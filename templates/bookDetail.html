@@ -47,12 +47,12 @@
 <!--Not avial and reservable and you dont own it-->
 {% if not availability and not reserved %}
 <a href="{{url_for('library')}}" class="btn btn-primary form-control viewmore"
-  >Not available at the moment.. Check back next time? Lets go back!</a
->{% endif %}
+  >Not available at the moment.. Check back next time? Lets go back!</a>
+
+  {% endif %}
 
 <!-- avail and reserved , someone chope it alr-->
 {% if availability and not reserved %}
 <a href="{{url_for('library')}}" class="btn btn-primary form-control viewmore"
-  >One step too late! Someone has already reserved it! Lets go back!</a
->
+  >One step too late! Someone has already reserved it! Lets go back!</a>
 {% endif %} {% endfor %} {% endblock %}

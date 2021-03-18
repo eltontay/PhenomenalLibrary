@@ -48,9 +48,6 @@ def bookDetail(bookid):
             reserved = row[1]
     return render_template('bookDetail.html', result=result, availability=availability, reserved=reserved, userHasBooks=userHasBooks)
 
-# in order to use the search function, need to assign indexes, i input the below command in mongo shell
-# db.libraryCollection.createIndex({title:"text",shortDescription:"text",longDescription:"text"})
-
 
 @app.route('/library/results', methods=['GET', 'POST'])
 def results():
@@ -62,10 +59,10 @@ def results():
             if bookSearch == "" and bookAuthor == "" and bookCategory == "":
                 flash("Please input at least one query")
                 quit()
-            result = list(collection.find(
-                {"$text": {"$search": "" +
-                           str(bookSearch) + " " + str(bookAuthor) + " " + str(bookCategory) + "'"}}))
-            # result = db.libraryCollection.find({"title": bookSearch})
+            # result = list(collection.find(
+            #     {"$text": {"$search": "" +
+            #               str(bookSearch) + " " + str(bookAuthor) + " " + str(bookCategory) + "'"}}))
+            result = db.libraryCollection.find({"title": bookSearch})
             return render_template('results.html', bookSearch=bookSearch, result=result)
         except:
             print("help")
@@ -151,6 +148,11 @@ def borrowSuccess():
     return render_template('notification.html', notification=notification)
 
 
+##############################################################################################################
+##############################################################################################################
+#                                   START OF ACCOUNT PAGE and Functionality
+##############################################################################################################
+##############################################################################################################
 @ app.route('/account', methods=['GET', 'POST'])
 def account():
     with sqlite3.connect("library.db") as con:
@@ -246,6 +248,17 @@ def returnBook():
         ## make sure that reservation working
         notification = result[0]['title'] + " has been returned!"
     return render_template('notification.html', notification = notification)
+##############################################################################################################
+##############################################################################################################
+#                                   END OF ACCOUNT PAGE and Functionality
+##############################################################################################################
+##############################################################################################################
+
+
+##############################################################################################################
+#                                   Start OF Account creation and login
+##############################################################################################################
+
 
 ##### START OF SignUp WORKS FINE #############
 @ app.route('/signup', methods=['GET', 'POST'])
@@ -308,8 +321,6 @@ def signup():
 ##### End OF SignUp WORKS FINE #############
 
 ##### START OF LOGIN WORKS FINE #############
-
-
 @ app.route('/')
 @ app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -344,27 +355,15 @@ def login():
 ##### END OF LOGIN WORKS FINE #############
 
 ##### START OF Logout WORKS FINE #############
-
-
 @ app.route('/logout', methods=['GET', 'POST'])
 def logout():
     session.clear()
     return redirect(url_for('login'))
 ##### END OF Logout WORKS FINE #############
 
-##### START OF Library WORKS FINE #############
-
-
-@ app.route('/library', methods=['GET', 'POST'])
-def library():
-    if 'userID' in session:
-        return render_template('library.html')
-    if request.method == 'POST':
-        bookSearch = request.form['bookSearch']
-        return redirect(url_for('results', bookSearch=bookSearch))
-    return redirect(url_for('login'))
-##### END OF library WORKS FINE #############
-
+##############################################################################################################
+#                                   END OF Account creation and login
+##############################################################################################################
 
 def refreshBorrowlisiting(cur):
     # get additional information about the borrowed books they hold and store in a variable
@@ -376,7 +375,6 @@ def refreshBorrowlisiting(cur):
     for row in rows:
         result.append(str(row[0]))
     return result
-
 
 def refreshReservelisiting(cur):
     # get additional information about the borrowed books they hold and store in a variable
