@@ -131,34 +131,13 @@ def borrowSuccess():
 
     with sqlite3.connect("library.db") as con:
         cur = con.cursor()
-
-        # first count how many books the brother got borrowed
-        SQL_command = "SELECT COUNT(returnDate)  FROM loan WHERE userID =  '" + \
-            str(session['userID']) + "' AND (returnDate = '' or returnDate = NULL)"
-        print(SQL_command)
-        cur.execute(SQL_command)
-        numofBooks = cur.fetchall()
-        if numofBooks[0][0] >= 4:
+        if checkBorrowMoreThanFour(cur,session['userID']):
             notification = "brother cannot la more than 4 books borrowed liao"
             return render_template('notification.html', notification=notification)
-
+        
         # first update book status
-        SQL_command = "UPDATE Book SET availability = FALSE WHERE bookID = '" + \
-            str(_id) + "'"
-        # print(SQL_command)
-        cur.execute(SQL_command)
-
-        # update loan status
-        d = date.today().strftime("%d/%m/%y")
-        dd = datetime.datetime.strptime(
-            d, "%d/%m/%y") + datetime.timedelta(days=28)
-        dd = dd.strftime("%d/%m/%y")
-
-        SQL_command = "INSERT INTO loan (userID, bookID, borrowDate, dueDate, returnDate) VALUES (?,?,?,?,?)"
-        loanEntry = (session['userID'], str(_id), d, dd, '')
-        # print(SQL_command)
-        cur.execute(SQL_command, loanEntry)
-
+        borrowBookBaseOnID(cur,_id)
+        
     con.commit()
     notification = "Your borrowing for "+result[0]['title'] + " is successful!"
     return render_template('notification.html', notification=notification)
@@ -190,7 +169,6 @@ def account():
                 list(db.libraryCollection.find({'_id':  int(book)})))
     con.commit()
     return render_template('account.html', borrowedbooks=borrowedbooks, reservedBooks=reservedBooks)
-
 
 @ app.route('/extendLoan', methods=['GET', 'POST'])
 def extendLoan():
@@ -237,7 +215,6 @@ def extendLoan():
         notification = result[0]['title'] +" has been successfully extended"
     return render_template('notification.html', notification=notification)
 
-
 @ app.route('/returnBook', methods=['GET', 'POST'])
 def returnBook():
     _id = request.form['_id']
@@ -278,30 +255,41 @@ def cancelReservation():
     }))
     with sqlite3.connect("library.db") as con:
         cur = con.cursor()
-        # Get Loan ID
-        SQL_command = "SELECT reserveID from reserve WHERE userID = '" + session['userID'] + "'" \
-            "AND bookID = '" + str(_id) + "'" \
-            "AND (endDate = '' or endDate = NULL)"
-        cur.execute(SQL_command)
-        rows = cur.fetchall()
-        for row in rows:
-            reserveID = row[0]
-
-        # update on reserve table
-        SQL_command = "UPDATE reserve SET endDate = CURRENT_TIMESTAMP WHERE reserveID = '" + \
-            str(reserveID) + "'"
-        cur.execute(SQL_command)
-        
-        ## Update on book side
-        SQL_command = "UPDATE book SET reservedAvailability = TRUE WHERE bookID = '" + str(_id) + "'"
-        cur.execute(SQL_command)
-        
-        ## Calculate Fine if have
+        cancelReservationBaseOnIp(cur,_id)
         ## make sure that reservation working
         notification = " Your reservation for "+ result[0]['title'] +" has been cancelled!"
     return render_template('notification.html', notification = notification)
 
+@ app.route('/reserveToBorrow', methods=['GET', 'POST'])
+def reserveToBorrow():
+    _id = request.form['_id']
+    result = list(db.libraryCollection.find({
+        '_id':  int(_id)
+    }))
+    with sqlite3.connect("library.db") as con:
+        cur = con.cursor()
+        
+        # first check if you have more than 4 books
+        if checkBorrowMoreThanFour(cur, session['userID']):
+            notification = "You already borrowed more than 4 books"
+            return render_template('notification.html', notification=notification)
 
+        # check if the books is available
+        print(checkBookAvail(cur, _id))
+        if not checkBookAvail(cur, _id):
+            notification = "Currently the Book is not available and still on loan"
+            return render_template('notification.html', notification=notification)
+        
+        #end reservation
+        
+        
+        ##book is avail and less than four books
+        borrowBookBaseOnID(cur,_id)
+    
+    con.commit()
+    notification = "Your borrowing for "+result[0]['title'] + " is successful!"
+    return render_template('notification.html', notification=notification)
+        
 ##############################################################################################################
 #                                   END OF ACCOUNT PAGE and Functionality
 ##############################################################################################################
@@ -447,6 +435,58 @@ def days_between(d1, d2):
     d1 = datetime.datetime.strptime(str(d1), "%d/%m/%y")
     d2 = datetime.datetime.strptime(str(d2), "%d/%m/%y")
     return (abs((d2 - d1).days) > 50)
+
+def checkBookAvail(cur,_id):
+    # first count how many books the brother got borrowed
+    SQL_command = "SELECT availability FROM book WHERE bookID = '" + str(_id) + "'"
+    cur.execute(SQL_command)
+    rows = cur.fetchall()
+    for row in rows:
+        avail = row[0]
+    return avail
+
+def cancelReservationBaseOnIp(cur, _id):
+    # Get Loan ID
+    SQL_command = "SELECT reserveID from reserve WHERE userID = '" + session['userID'] + "'" \
+        "AND bookID = '" + str(_id) + "'" \
+        "AND (endDate = '' or endDate = NULL)"
+    cur.execute(SQL_command)
+    rows = cur.fetchall()
+    for row in rows:
+        reserveID = row[0]
+
+    # update on reserve table
+    SQL_command = "UPDATE reserve SET endDate = CURRENT_TIMESTAMP WHERE reserveID = '" + \
+        str(reserveID) + "'"
+    cur.execute(SQL_command)
+    
+    ## Update on book side
+    SQL_command = "UPDATE book SET reservedAvailability = TRUE WHERE bookID = '" + str(_id) + "'"
+    cur.execute(SQL_command)
+
+def checkBorrowMoreThanFour(cur,id):
+    # first count how many books the brother got borrowed
+    SQL_command = "SELECT COUNT(returnDate)  FROM loan WHERE userID =  '" + \
+        str(id) + "' AND (returnDate = '' or returnDate = NULL)"
+    print(SQL_command)
+    cur.execute(SQL_command)
+    numofBooks = cur.fetchall()
+    return (numofBooks[0][0] >= 4)
+        
+def borrowBookBaseOnID(cur,_id):
+    SQL_command = "UPDATE Book SET availability = FALSE WHERE bookID = '" + \
+            str(_id) + "'"
+    cur.execute(SQL_command)
+    # update loan status
+    d = date.today().strftime("%d/%m/%y")
+    dd = datetime.datetime.strptime(
+        d, "%d/%m/%y") + datetime.timedelta(days=28)
+    dd = dd.strftime("%d/%m/%y")
+
+    SQL_command = "INSERT INTO loan (userID, bookID, borrowDate, dueDate, returnDate) VALUES (?,?,?,?,?)"
+    loanEntry = (session['userID'], str(_id), d, dd, '')
+    # print(SQL_command)
+    cur.execute(SQL_command, loanEntry)
 
 if __name__ == '__main__':
     app.run(debug=True)
