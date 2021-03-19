@@ -81,16 +81,53 @@ def results():
             if bookSearch == "" and bookAuthor == "" and bookCategory == "":
                 flash("Please input at least one query")
                 quit()
-            result = collection.find({
-                "title": {
-                    "$regex": bookSearch,
-                    "$options": "i"
-                }
-            })
-            # result = db.libraryCollection.find({"title": bookSearch})
+            if bookAuthor == "" and bookCategory == "":
+                result = list(collection.find({
+                    "title": {
+                        "$regex": bookSearch,
+                        "$options": "i"
+                    }
+                }))
+            elif bookAuthor == "":
+                result = collection.find({
+                    "title": {
+                        "$regex": bookSearch,
+                        "$options": "i"
+                    },
+                    "categories": {
+                        "$regex": bookCategory,
+                        "$options": "i"
+                    }
+                })
+            elif bookCategory == "":
+                result = collection.find({
+                    "title": {
+                        "$regex": bookSearch,
+                        "$options": "i"
+                    },
+                    "authors": {
+                        "$regex": bookAuthor,
+                        "$options": "i"
+                    }
+                })
+            else:
+                result = collection.find({
+                    "title": {
+                        "$regex": bookSearch,
+                        "$options": "i"
+                    },
+                    "authors": {
+                        "$regex": bookAuthor,
+                        "$options": "i"
+                    },
+                    "categories": {
+                        "$regex": bookCategory,
+                        "$options": "i"
+                    }
+                })
             return render_template('results.html', bookSearch=bookSearch, result=result)
-        except:
-            print("help")
+        except Exception as e:
+            print(e)
     return render_template('library.html')
 
 
