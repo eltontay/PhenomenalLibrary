@@ -1,16 +1,30 @@
 from flask import Flask, session, redirect, flash, render_template, request, url_for
 from markupsafe import escape
 from datetime import date
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
+import pymysql
+
 import sqlite3
 import datetime
 import pymongo
+import login
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
-# Database configuration
+
+#Database SQLAlchemy
+db = SQLAlchemy(app)
+engine = create_engine("mysql+pymysql://root:password@localhost/library")
+engine.connect()
+
+# Database configurationSQLITE
 conn = sqlite3.connect('library.db')
 print("Opened SQLdatabase successfully")
+
+mySQLconn = "Mysql@localhost:3306"
+
 ##### THIS LINK NEEDS TO CHANGE TO YOUR OWN LOCAL SERVER , DATABASE NAME , DATABASE COLLECTION #########
 # Localised Mongodb -> change the db to your database
 
@@ -78,7 +92,7 @@ def results():
             # result = list(collection.find(
             #     {"$text": {"$search": "" +
             #                str(bookSearch) + " " + str(bookAuthor) + " " + str(bookCategory) + "'"}}))
-            # result = db.libraryCollection.find({"title": bookSearch})
+            result = db.libraryCollection.find({"title": bookSearch})
             return render_template('results.html', bookSearch=bookSearch, result=result)
         except:
             print("help")
