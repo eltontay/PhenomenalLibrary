@@ -4,92 +4,101 @@
 <br />
 <h2>Your Loaned Books!</h2>
 <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Title</th>
-        <th style="width: 60%">Description</th>
-      </tr>
-    </thead>
-    <tbody>
-{% for book in borrowedbooks %}
-<tr>
-    <td>{{book[0]['_id']}}</td>
-    <td>{{book[0]['title']}}</td>
-    <td>{{book[0]['longDescription']}}</td>
-    <td>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Title</th>
+      <th style="width: 60%">Description</th>
+      <th>Borrowed Date</th>
+      <th>Due Date</th>
+      <th>Returned Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for book in borrowedbooks %}
+    <tr>
+      <td>{{book[0]['_id']}}</td>
+      <td>{{book[0]['title']}}</td>
+      <td>{{book[0]['longDescription']}}</td>
+      <td>{{currDates[0][0]}}</td>
+      <td>{{currDates[0][1]}}</td>
+      <td>{{currDates[0][2]}}</td>
+      <td>
+        <form action="{{url_for('returnBook')}}" method="POST">
+          <button
+            value="{{book[0]['_id']}}"
+            name="_id"
+            type="submit"
+            width="100%"
+            class="btn btn-primary form-control viewmore"
+          >
+            Return Book
+          </button>
+        </form>
 
-      <form action="{{url_for('returnBook')}}" method="POST">
-        <button
-          value="{{book[0]['_id']}}"
-          name="_id"
-          type="submit"
-          width=100%
-          class="btn btn-primary form-control viewmore">
-          Return Book
-        </button>
-      </form>
+        <form action="{{url_for('extendLoan')}}" method="POST">
+          <button
+            value="{{book[0]['_id']}}"
+            name="_id"
+            type="submit"
+            width="100%"
+            class="btn btn-primary form-control viewmore"
+          >
+            Extend Loan
+          </button>
+        </form>
+      </td>
+    </tr>
 
-      <form action="{{url_for('extendLoan')}}" method="POST">
-        <button
-          value="{{book[0]['_id']}}"
-          name="_id"
-          type="submit"
-          width=100%
-          class="btn btn-primary form-control viewmore">
-          Extend Loan
-        </button>
-      </form>
-    </td>
-</tr>
-
-{% endfor %}
-</tbody>
+    {% endfor %}
+  </tbody>
 </table>
 
 <br />
 <h2>Your Reserved Books</h2>
 <br />
 <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Title</th>
-        <th style="width: 60%">Description</th>
-      </tr>
-    </thead>
-    <tbody>
-{% for book in reservedBooks %}
-<tr>
-    <td>{{book[0]['_id']}}</td>
-    <td>{{book[0]['title']}}</td>
-    <td>{{book[0]['longDescription']}}</td>
-    <td>
-      <form action="{{url_for('reserveToBorrow')}}" method="POST">
-        <button
-          value="{{book[0]['_id']}}"
-          name="_id"
-          type="submit"
-          width=100%
-          class="btn btn-primary form-control viewmore">
-          Loan Book
-        </button>
-      </form>
-     <form action="{{url_for('cancelReservation')}}" method="POST">
-      <button
-        value="{{book[0]['_id']}}"
-        name="_id"
-        type="submit"
-        width=100%
-        class="btn btn-primary form-control viewmore">
-        Cancel reservation
-      </button>
-    </form>
-    </td>
-</tr>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Title</th>
+      <th style="width: 60%">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for book in reservedBooks %}
+    <tr>
+      <td>{{book[0]['_id']}}</td>
+      <td>{{book[0]['title']}}</td>
+      <td>{{book[0]['longDescription']}}</td>
+      <td>
+        <form action="{{url_for('reserveToBorrow')}}" method="POST">
+          <button
+            value="{{book[0]['_id']}}"
+            name="_id"
+            type="submit"
+            width="100%"
+            class="btn btn-primary form-control viewmore"
+          >
+            Loan Book
+          </button>
+        </form>
+        <form action="{{url_for('cancelReservation')}}" method="POST">
+          <button
+            value="{{book[0]['_id']}}"
+            name="_id"
+            type="submit"
+            width="100%"
+            class="btn btn-primary form-control viewmore"
+          >
+            Cancel reservation
+          </button>
+        </form>
+      </td>
+    </tr>
 
-{% endfor %}
-</tbody>
+    {% endfor %}
+  </tbody>
 </table>
 
 <h2>Outstanding Payment</h2>
