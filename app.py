@@ -75,10 +75,10 @@ def results():
             if bookSearch == "" and bookAuthor == "" and bookCategory == "":
                 flash("Please input at least one query")
                 quit()
-            # result = list(collection.find(
-            #     {"$text": {"$search": "" +
-            #               str(bookSearch) + " " + str(bookAuthor) + " " + str(bookCategory) + "'"}}))
-            result = db.libraryCollection.find({"title": bookSearch})
+            result = list(collection.find(
+                {"$text": {"$search": "" +
+                           str(bookSearch) + " " + str(bookAuthor) + " " + str(bookCategory) + "'"}}))
+            # result = db.libraryCollection.find({"title": bookSearch})
             return render_template('results.html', bookSearch=bookSearch, result=result)
         except:
             print("help")
@@ -159,12 +159,19 @@ def account():
         currBooksID = refreshBorrowlisiting(cur)
         borrowedbooks = []
         currDates = refreshDateslisting(cur)
-        print(currDates)
-
+        today = date.today().strftime("%d/%m/%y")
+        outstandingCosts = []
+        running = 0
         for book in currBooksID:
             borrowedbooks.append(
                 list(db.libraryCollection.find({'_id':  int(book)})))
-
+            d1 = datetime.datetime.strptime(currDates[running][1], "%d/%m/%y")
+            d2 = datetime.datetime.strptime(today, "%d/%m/%y")
+            if ((d2-d1).days > 0):
+                outstandingCosts.append((d2-d1).days)
+            else:
+                outstandingCosts.append(0)
+            running += 1
         currReservedID = refreshReservelisiting(cur)
         reservedBooks = []
         for book in currReservedID:
@@ -172,7 +179,7 @@ def account():
                 list(db.libraryCollection.find({'_id':  int(book)})))
 
     con.commit()
-    return render_template('account.html', borrowedbooks=borrowedbooks, reservedBooks=reservedBooks, currDates=currDates)
+    return render_template('account.html', borrowedbooks=borrowedbooks, reservedBooks=reservedBooks, currDates=currDates, oustandingCosts=outstandingCosts)
 
 
 @ app.route('/extendLoan', methods=['GET', 'POST'])
@@ -352,7 +359,6 @@ def signup():
                             postalCode)
 
             print(userNewEntry)
-            msg = "Record successfully added"
 
             with sqlite3.connect("library.db") as con:
                 cur = con.cursor()
