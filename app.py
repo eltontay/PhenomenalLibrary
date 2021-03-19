@@ -168,9 +168,9 @@ def account():
             d1 = datetime.datetime.strptime(currDates[running][1], "%d/%m/%y")
             d2 = datetime.datetime.strptime(today, "%d/%m/%y")
             if ((d2-d1).days > 0):
-                outstandingCosts.append((d2-d1).days)
+                outstandingCosts.append('Overdue')
             else:
-                outstandingCosts.append(0)
+                outstandingCosts.append('')
             running += 1
         currReservedID = refreshReservelisiting(cur)
         reservedBooks = []
@@ -427,7 +427,7 @@ def logout():
 
 
 def refreshDateslisting(cur):
-    SQL_command = "SELECT borrowDate, dueDate, returnDate FROM loan WHERE (returnDate = '' or returnDate = NULL) AND userID = '" + \
+    SQL_command = "SELECT borrowDate, dueDate FROM loan WHERE (returnDate = '' or returnDate = NULL) AND userID = '" + \
         session['userID'] + "'"
     cur.execute(SQL_command)
     rows = cur.fetchall()

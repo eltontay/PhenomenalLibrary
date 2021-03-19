@@ -10,8 +10,7 @@
       <th>Title</th>
       <th>Borrowed Date</th>
       <th>Due Date</th>
-      <th>Returned Date</th>
-      <th>Outstanding Payment</th>
+      <th>Check Overdue</th>
     </tr>
   </thead>
   <tbody>
@@ -21,7 +20,6 @@
       <td>{{book[0]['title']}}</td>
       <td>{{ currDates[loop.index-1][0] }}</td>
       <td>{{ currDates[loop.index-1][1] }}</td>
-      <td>{{ currDates[loop.index-1][2] }}</td>
       <td>{{ oustandingCosts[loop.index-1] }}</td>
 
       <td>
@@ -101,5 +99,9 @@
     {% endfor %}
   </tbody>
 </table>
+
+<br />
+
+<h2>Overdue Payments</h2>
 
 {% endblock %}
