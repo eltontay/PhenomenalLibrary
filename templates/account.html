@@ -18,9 +18,9 @@
     <tr>
       <td>{{book[0]['_id']}}</td>
       <td>{{book[0]['title']}}</td>
-      <td>{{ currDates[loop.index-1][0] }}</td>
-      <td>{{ currDates[loop.index-1][1] }}</td>
-      <td>{{ oustandingCosts[loop.index-1] }}</td>
+      <td>{{currDates[loop.index-1][0] }}</td>
+      <td>{{currDates[loop.index-1][1] }}</td>
+      <td>{{overDue[loop.index-1] }}</td>
 
       <td>
         <form action="{{url_for('returnBook')}}" method="POST">
@@ -103,5 +103,5 @@
 <br />
 
 <h2>Overdue Payments</h2>
-
+<h3>Your outstanding fine amount is ${{fine}}</h3>
 {% endblock %}

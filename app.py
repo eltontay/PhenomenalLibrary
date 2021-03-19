@@ -169,7 +169,7 @@ def account():
         borrowedbooks = []
         currDates = refreshDateslisting(cur)
         today = date.today().strftime("%d/%m/%y")
-        outstandingCosts = []
+        overDue = []
         running = 0
         for book in currBooksID:
             borrowedbooks.append(
@@ -177,18 +177,24 @@ def account():
             d1 = datetime.datetime.strptime(currDates[running][1], "%d/%m/%y")
             d2 = datetime.datetime.strptime(today, "%d/%m/%y")
             if ((d2-d1).days > 0):
-                outstandingCosts.append('Overdue')
+                overDue.append('Overdue')
+                # check if fine has been added, if not then add
+                if(refreshFineListing(cur)):
+                    SQL_command = "INSERT INTO fine (userID,fineCreationDate,fineAmount) VALUES (?,?,?)"
+                    fineEntry = (session['userID'], d2, 1)
+                    cur.execute(SQL_command, fineEntry)
             else:
-                outstandingCosts.append('')
+                overDue.append('Not Overdue')
             running += 1
         currReservedID = refreshReservelisiting(cur)
         reservedBooks = []
         for book in currReservedID:
             reservedBooks.append(
                 list(db.libraryCollection.find({'_id':  int(book)})))
+        fine = calculateFine(cur)
 
     con.commit()
-    return render_template('account.html', borrowedbooks=borrowedbooks, reservedBooks=reservedBooks, currDates=currDates, oustandingCosts=outstandingCosts)
+    return render_template('account.html', borrowedbooks=borrowedbooks, reservedBooks=reservedBooks, currDates=currDates, overDue=overDue, fine=fine)
 
 
 @ app.route('/extendLoan', methods=['GET', 'POST'])
@@ -433,6 +439,29 @@ def logout():
 ##############################################################################################################
 #                                   END OF Account creation and login
 ##############################################################################################################
+
+
+def calculateFine(cur):
+    SQL_command = "SELECT fineAmount FROM fine WHERE userID = '" + \
+        session['userID'] + "'"
+    cur.execute(SQL_command)
+    rows = cur.fetchall()
+    total = 0
+    for row in rows:
+        total += row[0]
+    return total
+
+
+def refreshFineListing(cur):
+    SQL_command = "SELECT fineCreationDate FROM fine WHERE userID = '" + \
+        session['userID'] + "'"
+    cur.execute(SQL_command)
+    rows = cur.fetchall()
+    d = date.today().strftime("%d/%m/%y")
+    for row in rows:
+        if (row[0] == d):
+            return False
+    return True
 
 
 def refreshDateslisting(cur):
