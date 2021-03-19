@@ -75,9 +75,9 @@ def results():
             if bookSearch == "" and bookAuthor == "" and bookCategory == "":
                 flash("Please input at least one query")
                 quit()
-            result = list(collection.find(
-                {"$text": {"$search": "" +
-                           str(bookSearch) + " " + str(bookAuthor) + " " + str(bookCategory) + "'"}}))
+            # result = list(collection.find(
+            #     {"$text": {"$search": "" +
+            #                str(bookSearch) + " " + str(bookAuthor) + " " + str(bookCategory) + "'"}}))
             # result = db.libraryCollection.find({"title": bookSearch})
             return render_template('results.html', bookSearch=bookSearch, result=result)
         except:
@@ -160,7 +160,7 @@ def account():
         borrowedbooks = []
         currDates = refreshDateslisting(cur)
         today = date.today().strftime("%d/%m/%y")
-        outstandingCosts = []
+        overDue = []
         running = 0
         for book in currBooksID:
             borrowedbooks.append(
@@ -168,9 +168,9 @@ def account():
             d1 = datetime.datetime.strptime(currDates[running][1], "%d/%m/%y")
             d2 = datetime.datetime.strptime(today, "%d/%m/%y")
             if ((d2-d1).days > 0):
-                outstandingCosts.append('Overdue')
+                overDue.append('Overdue')
             else:
-                outstandingCosts.append('')
+                overDue.append('Not overdue')
             running += 1
         currReservedID = refreshReservelisiting(cur)
         reservedBooks = []
@@ -179,7 +179,7 @@ def account():
                 list(db.libraryCollection.find({'_id':  int(book)})))
 
     con.commit()
-    return render_template('account.html', borrowedbooks=borrowedbooks, reservedBooks=reservedBooks, currDates=currDates, oustandingCosts=outstandingCosts)
+    return render_template('account.html', borrowedbooks=borrowedbooks, reservedBooks=reservedBooks, currDates=currDates, overDue=overDue)
 
 
 @ app.route('/extendLoan', methods=['GET', 'POST'])
