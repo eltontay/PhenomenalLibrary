@@ -15,11 +15,17 @@ print("Opened SQLdatabase successfully")
 # Localised Mongodb -> change the db to your database
 
 # Lundy COnnectionc
-client = pymongo.MongoClient(
-    "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
+#client = pymongo.MongoClient(
+    #"mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
 # Elton Connection
 # client = pymongo.MongoClient(
 #     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
+
+#YX Connection
+client = pymongo.MongoClient(
+    "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false"
+)
+
 db = client["libraryDatabase"]
 collection = db["libraryCollection"]
 
@@ -75,9 +81,12 @@ def results():
             if bookSearch == "" and bookAuthor == "" and bookCategory == "":
                 flash("Please input at least one query")
                 quit()
-            result = list(collection.find(
-                {"$text": {"$search": "" +
-                           str(bookSearch) + " " + str(bookAuthor) + " " + str(bookCategory) + "'"}}))
+            result = collection.find({
+                "title": {
+                    "$regex": bookSearch,
+                    "$options": "i"
+                }
+            })
             # result = db.libraryCollection.find({"title": bookSearch})
             return render_template('results.html', bookSearch=bookSearch, result=result)
         except:
