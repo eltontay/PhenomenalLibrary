@@ -23,17 +23,23 @@ engine.connect()
 conn = sqlite3.connect('library.db')
 print("Opened SQLdatabase successfully")
 
-mySQLconn = "Mysql@localhost:3306"
 
 ##### THIS LINK NEEDS TO CHANGE TO YOUR OWN LOCAL SERVER , DATABASE NAME , DATABASE COLLECTION #########
 # Localised Mongodb -> change the db to your database
 
 # Lundy COnnectionc
-client = pymongo.MongoClient(
-    "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
+#client = pymongo.MongoClient(
+    #"mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
+
 # Elton Connection
 # client = pymongo.MongoClient(
 #     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
+
+#YX Connection
+client = pymongo.MongoClient(
+    "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false"
+)
+
 db = client["libraryDatabase"]
 collection = db["libraryCollection"]
 
@@ -86,16 +92,57 @@ def results():
             bookSearch = request.form['bookSearch']
             bookAuthor = request.form['author']
             bookCategory = request.form['category']
+            #result = db.libraryCollection.find({"title": bookSearch})
             if bookSearch == "" and bookAuthor == "" and bookCategory == "":
                 flash("Please input at least one query")
                 quit()
-            # result = list(collection.find(
-            #     {"$text": {"$search": "" +
-            #                str(bookSearch) + " " + str(bookAuthor) + " " + str(bookCategory) + "'"}}))
-            result = db.libraryCollection.find({"title": bookSearch})
+            if bookAuthor == "" and bookCategory == "":
+                result = list(collection.find({
+                    "title": {
+                        "$regex": bookSearch,
+                        "$options": "i"
+                    }
+                }))
+            elif bookAuthor == "":
+                result = collection.find({
+                    "title": {
+                        "$regex": bookSearch,
+                        "$options": "i"
+                    },
+                    "categories": {
+                        "$regex": bookCategory,
+                        "$options": "i"
+                    }
+                })
+            elif bookCategory == "":
+                result = collection.find({
+                    "title": {
+                        "$regex": bookSearch,
+                        "$options": "i"
+                    },
+                    "authors": {
+                        "$regex": bookAuthor,
+                        "$options": "i"
+                    }
+                })
+            else:
+                result = collection.find({
+                    "title": {
+                        "$regex": bookSearch,
+                        "$options": "i"
+                    },
+                    "authors": {
+                        "$regex": bookAuthor,
+                        "$options": "i"
+                    },
+                    "categories": {
+                        "$regex": bookCategory,
+                        "$options": "i"
+                    }
+                })
             return render_template('results.html', bookSearch=bookSearch, result=result)
-        except:
-            print("help")
+        except Exception as e:
+            print(e)
     return render_template('library.html')
 
 
@@ -183,17 +230,23 @@ def account():
             d2 = datetime.datetime.strptime(today, "%d/%m/%y")
             if ((d2-d1).days > 0):
                 overDue.append('Overdue')
+                # check if fine has been added, if not then add
+                if(refreshFineListing(cur)):
+                    SQL_command = "INSERT INTO fine (userID,fineCreationDate,fineAmount) VALUES (?,?,?)"
+                    fineEntry = (session['userID'], d2, 1)
+                    cur.execute(SQL_command, fineEntry)
             else:
-                overDue.append('Not overdue')
+                overDue.append('Not Overdue')
             running += 1
         currReservedID = refreshReservelisiting(cur)
         reservedBooks = []
         for book in currReservedID:
             reservedBooks.append(
                 list(db.libraryCollection.find({'_id':  int(book)})))
+        fine = calculateFine(cur)
 
     con.commit()
-    return render_template('account.html', borrowedbooks=borrowedbooks, reservedBooks=reservedBooks, currDates=currDates, overDue=overDue)
+    return render_template('account.html', borrowedbooks=borrowedbooks, reservedBooks=reservedBooks, currDates=currDates, overDue=overDue, fine=fine)
 
 
 @ app.route('/extendLoan', methods=['GET', 'POST'])
@@ -438,6 +491,29 @@ def logout():
 ##############################################################################################################
 #                                   END OF Account creation and login
 ##############################################################################################################
+
+
+def calculateFine(cur):
+    SQL_command = "SELECT fineAmount FROM fine WHERE userID = '" + \
+        session['userID'] + "'"
+    cur.execute(SQL_command)
+    rows = cur.fetchall()
+    total = 0
+    for row in rows:
+        total += row[0]
+    return total
+
+
+def refreshFineListing(cur):
+    SQL_command = "SELECT fineCreationDate FROM fine WHERE userID = '" + \
+        session['userID'] + "'"
+    cur.execute(SQL_command)
+    rows = cur.fetchall()
+    d = date.today().strftime("%d/%m/%y")
+    for row in rows:
+        if (row[0] == d):
+            return False
+    return True
 
 
 def refreshDateslisting(cur):
