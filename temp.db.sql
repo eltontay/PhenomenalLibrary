@@ -1,90 +1,74 @@
-DROP TABLE IF EXISTS `library`.`loan`;
-DROP TABLE IF EXISTS `library`.`reserve`;
-DROP TABLE IF EXISTS `library`.`fine`;
-DROP TABLE IF EXISTS `library`.`payment`;
-DROP TABLE IF EXISTS `library`.`userTable`;
-
-CREATE TABLE `library`.`userTable` (
-  `userID` INT NOT NULL AUTO_INCREMENT,
-  `userName` VARCHAR(45) NOT NULL,
-  `userPassword` VARCHAR(45) NOT NULL,
-  `email` VARCHAR(45) NOT NULL,
-  `fName` VARCHAR(45) NOT NULL,
-  `lName` VARCHAR(45) NOT NULL,
-  `phoneNum` VARCHAR(45) NOT NULL,
-  `blockNum` VARCHAR(45) NOT NULL,
-  `streetName` VARCHAR(45) NOT NULL,
-  `unitNum` VARCHAR(8) NOT NULL,
-  `postalCode` CHAR(6) NOT NULL,
-  `admin` BOOLEAN NOT NULL DEFAULT 0,
-  PRIMARY KEY (`userID`),
-  UNIQUE INDEX `userID_UNIQUE` (`userID` ASC) VISIBLE);
-
-
-CREATE TABLE IF NOT EXISTS `library`.`payment` (
-	`paymentID`	INTEGER UNIQUE,
-	`paymentDate`	DATE,
-	`paymentAmount`	INTEGER,
-	`userID`	INTEGER,
-	FOREIGN KEY(`userID`) REFERENCES `userTable`(`userID`),
-	PRIMARY KEY(`paymentID`),
-	UNIQUE INDEX `paymentID_UNIQUE` (`paymentID` ASC) VISIBLE
+BEGIN TRANSACTION;
+DROP TABLE IF EXISTS "fine";
+CREATE TABLE IF NOT EXISTS "fine" (
+	"fineID"	INTEGER UNIQUE,
+	"userID"	INTEGER,
+	"fineCreationDate"	DATE,
+	"fineAmount"	INTEGER,
+	PRIMARY KEY("fineID" AUTOINCREMENT),
+	FOREIGN KEY("userID") REFERENCES "userTable"("userID")
 );
-
-
-CREATE TABLE `library`.`fine` (
-	`fineID`	INT NOT NULL AUTO_INCREMENT,
-	`userID`	INTEGER,
-	`fineCreationDate`	DATE,
-	`fineAmount`	INTEGER,
-	FOREIGN KEY(`userID`) REFERENCES `userTable`(`userID`),
-	PRIMARY KEY(`fineID`),
-	UNIQUE INDEX `fineID_UNIQUE` (`fineID` ASC) VISIBLE
-	);
-
-
-
-DROP TABLE IF EXISTS `library`.`book`;
-CREATE TABLE IF NOT EXISTS `library`.`book` (
-	`bookID`	INTEGER NOT NULL AUTO_INCREMENT,
-	`availability`	BOOLEAN NOT NULL DEFAULT 1,
-	`reservedAvailability`	BOOLEAN NOT NULL DEFAULT 1,
-	PRIMARY KEY(`bookID`),
-	UNIQUE INDEX `bookID_UNIQUE` (`bookID` ASC) VISIBLE
+DROP TABLE IF EXISTS "payment";
+CREATE TABLE IF NOT EXISTS "payment" (
+	"paymentID"	INTEGER UNIQUE,
+	"paymentDate"	DATE,
+	"paymentAmount"	INTEGER,
+	"userID"	INTEGER,
+	PRIMARY KEY("paymentID" AUTOINCREMENT),
+	FOREIGN KEY("userID") REFERENCES "userTable"("userID")
 );
-
-
-CREATE TABLE IF NOT EXISTS `library`.`reserve` (
-	`reserveID`	INTEGER NOT NULL AUTO_INCREMENT,
-	`userID`	INTEGER NOT NULL,
-	`bookID`	INTEGER NOT NULL,
-	`reserveDate`	DATE NOT NULL,
-	`endDate`	DATE,
-	FOREIGN KEY(`bookID`) REFERENCES `book`(`bookID`),
-	FOREIGN KEY(`userID`) REFERENCES `userTable`(`userID`),
-	PRIMARY KEY(`reserveID`),
-	UNIQUE INDEX `reserveID_UNIQUE` (`reserveID` ASC) VISIBLE
+DROP TABLE IF EXISTS "userTable";
+CREATE TABLE IF NOT EXISTS "userTable" (
+	"userID"	INTEGER NOT NULL UNIQUE,
+	"userName"	VARCHAR(255),
+	"userPassword"	VARCHAR(255) NOT NULL,
+	"email"	VARCHAR(255) NOT NULL UNIQUE,
+	"fName"	VARCHAR(255) NOT NULL,
+	"lName"	VARCHAR(255) NOT NULL,
+	"phoneNum"	VARCHAR(10) NOT NULL CHECK("userPhoneNum" NOT LIKE '%[^0-9]%'),
+	"blockNum"	VARCHAR(8),
+	"streetName"	VARCHAR(255) NOT NULL,
+	"unitNum"	VARCHAR(8) NOT NULL,
+	"postalCode"	CHAR(6) NOT NULL CHECK("userPostalCode" NOT LIKE '%[^0-9]%'),
+	"admin"	BOOL DEFAULT 0,
+	PRIMARY KEY("userID")
 );
-
-CREATE TABLE IF NOT EXISTS `library`.`loan` (
-	`loanID`	INTEGER NOT NULL AUTO_INCREMENT,
-	`userID`	INTEGER NOT NULL,
-	`bookID`	INTEGER NOT NULL,
-	`borrowDate`	DATE NOT NULL,
-	`dueDate`	DATE,
-	`returnDate`	DATE,
-	FOREIGN KEY(`bookID`) REFERENCES `book`(`bookID`),
-	FOREIGN KEY(`userID`) REFERENCES `userTable`(`userID`),
-	PRIMARY KEY(`loanID`)
+DROP TABLE IF EXISTS "book";
+CREATE TABLE IF NOT EXISTS "book" (
+	"bookID"	INTEGER NOT NULL UNIQUE,
+	"availability"	BOOL NOT NULL DEFAULT 1,
+	"reservedAvailability"	BOOL NOT NULL DEFAULT 1,
+	PRIMARY KEY("bookID" AUTOINCREMENT)
 );
-
-INSERT INTO `library`.`userTable` (`userID`,`userName`,`userPassword`,`email`,`fName`,`lName`,`phoneNum`,`blockNum`,`streetName`,`unitNum`,`postalCode`,`admin`) VALUES (1,'testing','test','Randompoop3@gmail.com','Loondi','Peng','83233625','604','670604','23342','670604',0),
+DROP TABLE IF EXISTS "reserve";
+CREATE TABLE IF NOT EXISTS "reserve" (
+	"reserveID"	INTEGER NOT NULL,
+	"userID"	INTEGER NOT NULL,
+	"bookID"	INTEGER NOT NULL,
+	"reserveDate"	DATE NOT NULL,
+	"endDate"	DATE,
+	PRIMARY KEY("reserveID" AUTOINCREMENT),
+	FOREIGN KEY("bookID") REFERENCES "book"("bookID"),
+	FOREIGN KEY("userID") REFERENCES "userTable"("userID")
+);
+DROP TABLE IF EXISTS "loan";
+CREATE TABLE IF NOT EXISTS "loan" (
+	"loanID"	INTEGER NOT NULL,
+	"userID"	INTEGER NOT NULL,
+	"bookID"	INTEGER NOT NULL,
+	"borrowDate"	DATE NOT NULL,
+	"dueDate"	DATE,
+	"returnDate"	DATE,
+	PRIMARY KEY("loanID" AUTOINCREMENT),
+	FOREIGN KEY("userID") REFERENCES "userTable"("userID"),
+	FOREIGN KEY("bookID") REFERENCES "book"("bookID")
+);
+INSERT INTO "userTable" ("userID","userName","userPassword","email","fName","lName","phoneNum","blockNum","streetName","unitNum","postalCode","admin") VALUES (1,'testing','test','Randompoop3@gmail.com','Loondi','Peng','83233625','604','670604','23342','670604',0),
  (2,'testing2','test','Randompoop4@gmail.com','Loondi','Peng','83233625','234','670604','dsfsfds','670604',0),
  (3,'randompoop3','tadsa','Randompoop5@gmail.com','Loondi','Peng','83233625','1231231','670604','123123','670604',0),
  (4,'randompoop13','test','Randompoop13@gmail.com','Loondi','Peng','83233625','32423','670604','234243','670604',0),
  (5,'fkinhell','asdasd','fkshits@gmail.com','Lundy Pang','Keat','83233625','321','603 Senja Road','123','670603',0);
-
-INSERT INTO `library`.`book` (`bookID`,`availability`,`reservedAvailability`) VALUES (1,0,1),
+INSERT INTO "book" ("bookID","availability","reservedAvailability") VALUES (1,0,1),
  (2,1,1),
  (3,1,1),
  (4,1,1),
@@ -880,11 +864,25 @@ INSERT INTO `library`.`book` (`bookID`,`availability`,`reservedAvailability`) VA
  (794,1,1),
  (795,1,1),
  (796,1,1);
-
- INSERT INTO `library`.`reserve` (`reserveID`,`userID`,`bookID`,`reserveDate`,`endDate`) VALUES (22,2,1,'18/03/21','18/03/21 05:39:12'),
- (23,2,1,'18/03/21','18/03/21 05:39:36'),
- (24,2,1,'18/03/21','18/03/21 07:57:51'),
- (25,1,1,'18/03/21','18/03/21 08:00:13'),
- (26,1,1,'18/03/21','18/03/21 08:01:53'),
- (27,2,1,'18/03/21','18/03/21 08:04:47');
- 
+INSERT INTO "reserve" ("reserveID","userID","bookID","reserveDate","endDate") VALUES (22,2,1,'18/03/21','2021-03-18 05:39:12'),
+ (23,2,1,'18/03/21','2021-03-18 05:39:36'),
+ (24,2,1,'18/03/21','2021-03-18 07:57:51'),
+ (25,1,1,'18/03/21','2021-03-18 08:00:13'),
+ (26,1,1,'18/03/21','2021-03-18 08:01:53'),
+ (27,2,1,'18/03/21','2021-03-18 08:04:47');
+INSERT INTO "loan" ("loanID","userID","bookID","borrowDate","dueDate","returnDate") VALUES (4,1,1,'18/03/21','15/04/21','2021-03-17 17:13:00'),
+ (5,1,2,'18/03/21','15/04/21','2021-03-17 17:13:35'),
+ (8,1,1,'18/03/21','13/05/21','2021-03-17 17:48:25'),
+ (9,1,1,'18/03/21','13/05/21','2021-03-17 17:48:25'),
+ (10,1,1,'18/03/21','13/05/21','2021-03-18 05:00:21'),
+ (11,1,1,'18/03/21','13/05/21','2021-03-18 07:53:25'),
+ (12,1,2,'18/03/21','15/04/21','2021-03-18 07:38:05'),
+ (13,1,3,'18/03/21','15/04/21','2021-03-18 07:38:00'),
+ (14,1,4,'18/03/21','15/04/21','2021-03-18 07:37:57'),
+ (16,1,2,'18/03/21','15/04/21','2021-03-18 07:53:21'),
+ (17,2,1,'18/03/21','15/04/21','2021-03-18 07:58:01'),
+ (18,2,1,'18/03/21','15/04/21','2021-03-18 08:01:03'),
+ (19,1,1,'18/03/21','13/05/21',''),
+ (20,1,186,'19/03/21','16/04/21',''),
+ (21,1,560,'19/03/21','16/04/21','');
+COMMIT;

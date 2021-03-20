@@ -3,12 +3,11 @@ from markupsafe import escape
 from datetime import date
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
-import pymysql
+
 
 import sqlite3
 import datetime
 import pymongo
-import login
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -27,18 +26,18 @@ print("Opened SQLdatabase successfully")
 ##### THIS LINK NEEDS TO CHANGE TO YOUR OWN LOCAL SERVER , DATABASE NAME , DATABASE COLLECTION #########
 # Localised Mongodb -> change the db to your database
 
-# Lundy COnnectionc
-#client = pymongo.MongoClient(
-    #"mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
+#Lundy COnnectionc
+client = pymongo.MongoClient(
+    "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
 
 # Elton Connection
 # client = pymongo.MongoClient(
 #     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
 
-#YX Connection
-client = pymongo.MongoClient(
-    "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false"
-)
+# #YX Connection
+# client = pymongo.MongoClient(
+#     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false"
+# )
 
 db = client["libraryDatabase"]
 collection = db["libraryCollection"]
@@ -156,7 +155,7 @@ def reservationSuccess():
     with sqlite3.connect("library.db") as con:
         cur = con.cursor()
         # check if he reserved more than 4 books anot
-        SQL_command = "SELECT COUNT(endDate = '') FROM reserve WHERE userID =  '" + \
+        SQL_command = "SELECT COUNT(endDate = '' or endDate = NULL) FROM reserve WHERE userID =  '" + \
             str(session['userID']) + "'"
         print(SQL_command)
         cur.execute(SQL_command)
