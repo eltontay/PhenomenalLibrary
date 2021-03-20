@@ -14,17 +14,15 @@
       <td>{{i['title']}}</td>
       <td>{{i['shortDescription']}}</td>
       <td>
-       
-          <a
-            href="/book/{{i['_id']}}"
-            class="btn btn-primary form-control viewmore"
-          >
-            View More
-      </a>
-        
+        <a
+          href="/book/{{i['_id']}}"
+          class="btn btn-primary form-control viewmore"
+        >
+          View More
+        </a>
       </td>
     </tr>
- {% endfor %}
+    {% endfor %}
   </tbody>
 </table>
 {% endblock %}

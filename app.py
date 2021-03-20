@@ -4,27 +4,38 @@ from datetime import date
 import sqlite3
 import datetime
 import pymongo
+import sqlalchemy
+import mysql.connector
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
-# Database configuration
-conn = sqlite3.connect('library.db')
-print("Opened SQLdatabase successfully")
-##### THIS LINK NEEDS TO CHANGE TO YOUR OWN LOCAL SERVER , DATABASE NAME , DATABASE COLLECTION #########
-# Localised Mongodb -> change the db to your database
+engine = sqlalchemy.create_engine(
+    'mysql+mysqlconnector://root:password@localhost/library')
+# testing
+with engine.connect() as con:
+    rs = con.execute('SELECT * FROM book')
+    rs = rs.fetchall()
+    for row in rs:
+        print(row)
 
-# Lundy COnnectionc
-#client = pymongo.MongoClient(
-    #"mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
-# Elton Connection
+# # Database configuration
+# conn = sqlite3.connect('library.db')
+# print("Opened SQLdatabase successfully")
+# ##### THIS LINK NEEDS TO CHANGE TO YOUR OWN LOCAL SERVER , DATABASE NAME , DATABASE COLLECTION #########
+# # Localised Mongodb -> change the db to your database
+
+# # Lundy COnnectionc
+# #client = pymongo.MongoClient(
+#     #"mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
+# # Elton Connection
+# # client = pymongo.MongoClient(
+# #     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
+
+# #YX Connection
 # client = pymongo.MongoClient(
-#     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
-
-#YX Connection
-client = pymongo.MongoClient(
-    "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false"
-)
+#     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false"
+# )
 
 db = client["libraryDatabase"]
 collection = db["libraryCollection"]
