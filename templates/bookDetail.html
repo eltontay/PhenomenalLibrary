@@ -1,8 +1,12 @@
-{% include "library.html" %} {% block content %} {% for i in result %}
+{% include "navBar.html" %} {% block content %} {% for i in result %}
 <div class="bookpic">
-  <img src="{{i['thumbnailUrl']}}" height="300" />
+  <img
+    src="{{i['thumbnailUrl']}}"
+    height="250"
+    style="padding: 10px; float: right"
+  />
 </div>
-<div class="bookdesc">
+<div class="bookdesc" style="padding: 10px">
   <p>Title: {{i['title']}}</p>
   <p>ISBN: {{i['isbn']}}</p>
   <p>Number of pages: {{i['pageCount']}}</p>
@@ -10,7 +14,7 @@
   <p>Authors: {{i['authors']}}</p>
   <p>Categories: {{i['categories']}}</p>
 </div>
-<p>Book Overview: {{i['longDescription']}}</p>
+<div style="padding: 10px"><p>Book Overview: {{i['longDescription']}}</p></div>
 
 <!--If you already have this book somewhere reserved or borrowed-->
 

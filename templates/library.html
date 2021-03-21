@@ -33,11 +33,7 @@
   </div>
 </nav>
 
-<div class="jumbotron">
-  <br />
-  <p class="lead text-center">Find your favourite book now!</p>
-  <br />
-</div>
+<div class="jumbotron"></div>
 <nav class="navbar navbar-light bg-light">
   <div class="container-fluid">
     <form
@@ -89,5 +85,77 @@
     </form>
   </div>
 </nav>
+
+<!-- <link href="../static/css/search.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script> -->
+
+<!-- <div class="container">
+	<div class="row">
+		<div class="col-md-12">
+      <form
+      class="mx-2 my-auto d-inline w-100"
+      method="POST"
+      action="{{ url_for('results')}}"
+    >
+            <div class="input-group" id="adv-search">
+              
+              <input
+              class="form-control text-center"
+              type="search"
+              placeholder="Find your favourite book now!"
+              aria-label="Search"
+              name="bookSearch"
+            />
+                <div class="input-group-btn">
+                    <div class="btn-group" role="group">
+                        <div class="dropdown dropdown-lg">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
+                            <div class="dropdown-menu dropdown-menu-right" role="menu">
+                                <form class="form-horizontal" role="form">
+                                  <div class="form-group">
+                                    <label for="contain">Author</label>
+                                    <input
+                                      class="form-control text-center"
+                                      type="search"
+                                      placeholder="Author"
+                                      aria-label="Search"
+                                      name="author"
+                                    />
+                                  </div>
+                                  <div class="form-group">
+                                    <label for="contain">Categories</label>
+                                    <input
+                                      class="form-control text-center"
+                                      type="search"
+                                      placeholder="Category"
+                                      aria-label="Search"
+                                      name="category"
+                                    />
+                                  </div>
+                                  <div class="form-group">
+                                    <label for="contain">Year of Publication</label>
+                                    <input
+                                      class="form-control text-center"
+                                      type="search"
+                                      placeholder="Year of Publication"
+                                      aria-label="Search"
+                                      name="year"
+                                    />
+                                  </div>
+                                  <button class="btn btn-primary form-control" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+                                </form>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary form-control" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+                    </div>
+                </div>
+            </div>
+          
+          </div>
+        </form>
+        </div>
+	</div>
+</div> -->
 
 {% endblock %}

@@ -49,6 +49,10 @@ collection = db["libraryCollection"]
 #                                   START OF ACCOUNT PAGE and Functionality
 ##############################################################################################################
 
+@app.route('/navBar')
+def navBar():
+    return render_template('navBar.html')
+
 ##### START OF Library WORKS FINE #############
 @ app.route('/library', methods=['GET', 'POST'])
 def library():
