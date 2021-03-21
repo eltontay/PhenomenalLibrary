@@ -1,12 +1,16 @@
 {% include "library.html" %} {% block content %} {% for i in result %}
-<p>{{i['title']}}</p>
-<p>{{i['isbn']}}</p>
-<p>{{i['pageCount']}}</p>
-<p>{{i['publishedDate']}}</p>
-<p>{{i['thumbnailUrl']}}</p>
-<p>{{i['longDescription']}}</p>
-<p>{{i['authors']}}</p>
-<p>{{i['categories']}}</p>
+<div class="bookpic">
+  <img src="{{i['thumbnailUrl']}}" height="300" />
+</div>
+<div class="bookdesc">
+  <p>Title: {{i['title']}}</p>
+  <p>ISBN: {{i['isbn']}}</p>
+  <p>Number of pages: {{i['pageCount']}}</p>
+  <p>Date of publication: {{i['publishedDate']}}</p>
+  <p>Authors: {{i['authors']}}</p>
+  <p>Categories: {{i['categories']}}</p>
+</div>
+<p>Book Overview: {{i['longDescription']}}</p>
 
 <!--If you already have this book somewhere reserved or borrowed-->
 
@@ -47,12 +51,14 @@
 <!--Not avial and reservable and you dont own it-->
 {% if not availability and not reserved %}
 <a href="{{url_for('library')}}" class="btn btn-primary form-control viewmore"
-  >Not available at the moment.. Check back next time? Lets go back!</a>
+  >Not available at the moment.. Check back next time? Lets go back!</a
+>
 
-  {% endif %}
+{% endif %}
 
 <!-- avail and reserved , someone chope it alr-->
 {% if availability and not reserved %}
 <a href="{{url_for('library')}}" class="btn btn-primary form-control viewmore"
-  >One step too late! Someone has already reserved it! Lets go back!</a>
+  >One step too late! Someone has already reserved it! Lets go back!</a
+>
 {% endif %} {% endfor %} {% endblock %}

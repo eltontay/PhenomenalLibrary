@@ -15,7 +15,7 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 #Database SQLAlchemy
 db = SQLAlchemy(app)
-engine = create_engine("mysql+pymysql://root:password@localhost/library")
+engine = create_engine("mysql+pymysql://root:382522@localhost/library")
 engine.connect()
 
 # Database configurationSQLITE
@@ -91,54 +91,30 @@ def results():
             bookSearch = request.form['bookSearch']
             bookAuthor = request.form['author']
             bookCategory = request.form['category']
+            bookYear = request.form['year']
             #result = db.libraryCollection.find({"title": bookSearch})
-            if bookSearch == "" and bookAuthor == "" and bookCategory == "":
+            if bookSearch == "" and bookAuthor == "" and bookCategory == "" and bookYear == "":
                 flash("Please input at least one query")
                 quit()
-            if bookAuthor == "" and bookCategory == "":
-                result = list(collection.find({
-                    "title": {
-                        "$regex": bookSearch,
-                        "$options": "i"
-                    }
-                }))
-            elif bookAuthor == "":
-                result = collection.find({
-                    "title": {
-                        "$regex": bookSearch,
-                        "$options": "i"
-                    },
-                    "categories": {
-                        "$regex": bookCategory,
-                        "$options": "i"
-                    }
-                })
-            elif bookCategory == "":
-                result = collection.find({
-                    "title": {
-                        "$regex": bookSearch,
-                        "$options": "i"
-                    },
-                    "authors": {
-                        "$regex": bookAuthor,
-                        "$options": "i"
-                    }
-                })
-            else:
-                result = collection.find({
-                    "title": {
-                        "$regex": bookSearch,
-                        "$options": "i"
-                    },
-                    "authors": {
-                        "$regex": bookAuthor,
-                        "$options": "i"
-                    },
-                    "categories": {
-                        "$regex": bookCategory,
-                        "$options": "i"
-                    }
-                })
+            result = collection.find({
+                "title": {
+                    "$regex": bookSearch,
+                    "$options": "i"
+                },
+                "authors": {
+                    "$regex": bookAuthor,
+                    "$options": "i"
+                },
+                "categories": {
+                    "$regex": bookCategory,
+                    "$options": "i"
+                },
+                "publishedDate": 
+                {
+                    "$regex": bookYear,
+                    "$options":"i"
+                }
+            })
             return render_template('results.html', bookSearch=bookSearch, result=result)
         except Exception as e:
             print(e)
