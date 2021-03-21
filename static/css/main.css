@@ -215,6 +215,11 @@ tbody tr:nth-child(odd) {
   background: #eee;
 }
 
+body {
+  background-image: url(../images/mikolaj-DCzpr09cTXY-unsplash.jpg);
+  background-position: center;
+}
+
 /* Chrome, Safari, Edge, Opera */
 input#phoneNum::-webkit-outer-spin-button,
 input#phoneNum::-webkit-inner-spin-button,

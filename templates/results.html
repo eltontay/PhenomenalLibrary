@@ -1,27 +1,35 @@
 {% include "library.html" %} {% block content %}
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Title</th>
-      <th style="width: 60%">Description</th>
-      <th>Availability</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for i in result %}
-    <tr>
-      <td>{{i['_id']}}</td>
-      <td>
-        <a href="/book/{{i['_id']}}"
-          ><img src="{{i['thumbnailUrl']}}" height="100"
-        /></a>
-        <a href="/book/{{i['_id']}}">{{i['title']}}</a>
-      </td>
-      <td>{{i['shortDescription']}}</td>
-      <td></td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<body>
+  <table>
+    <thead>
+      <tr style="background-color: #ffffff">
+        <th>ID</th>
+        <th>Title</th>
+        <th style="width: 60%">Description</th>
+        <th>Availability</th>
+      </tr>
+    </thead>
+    <tbody style="background-color: #ffffff">
+      {% for i in result %}
+      <tr>
+        <td>{{i['_id']}}</td>
+        <td>
+          <a href="/book/{{i['_id']}}"
+            ><img src="{{i['thumbnailUrl']}}" height="100"
+          /></a>
+          <a href="/book/{{i['_id']}}">{{i['title']}}</a>
+        </td>
+        <td>{{i['shortDescription']}}</td>
+        <td></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+
+<style>
+  body {
+    background-color: #ffffff;
+  }
+</style>
 {% endblock %}
