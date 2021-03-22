@@ -159,7 +159,7 @@ def reservationSuccess():
     con.commit()
     notification = "Your reservation for " + \
         result[0]['title'] + " is successful!"
-    return render_template('notification.html', notification=notification)
+    return render_template('notification.html', notification=notification, bookTitle = result[0])
 
 
 @ app.route('/library/results/borrowSuccess', methods=['GET', 'POST'])
@@ -172,15 +172,15 @@ def borrowSuccess():
     with sqlite3.connect("library.db") as con:
         cur = con.cursor()
         if checkBorrowMoreThanFour(cur, session['userID']):
-            notification = "brother cannot la more than 4 books borrowed liao"
-            return render_template('notification.html', notification=notification)
+            notification = "Your borrowing of "+result[0]['title'] + " is unsuccessful. You have reached your borrowing limit of 4 books."
+            return render_template('notification.html', notification=notification, bookTitle = result[0])
 
         # first update book status
         borrowBookBaseOnID(cur, _id)
 
     con.commit()
-    notification = "Your borrowing for "+result[0]['title'] + " is successful!"
-    return render_template('notification.html', notification=notification)
+    notification = "Your borrowing of "+result[0]['title'] + " is successful!"
+    return render_template('notification.html', notification=notification, bookTitle = result[0])
 
 
 ##############################################################################################################
@@ -248,7 +248,7 @@ def extendLoan():
 
         if not ISreserved:
             notification = "Sorry, this book has been reserved and the loan cannot be extended"
-            return render_template('notification.html', notification=notification)
+            return render_template('notification.html', notification=notification, bookTitle = result[0])
 
         SQL_command = "SELECT loanID, dueDate, borrowDate from loan WHERE userID = '" + session['userID'] + "'" \
             "AND bookID = '" + str(_id) + "'" \
@@ -263,7 +263,7 @@ def extendLoan():
         # check if it has been extended before
         if days_between(borrowDate, dueDate):
             notification = "Sorry, this book has been extended before"
-            return render_template('notification.html', notification=notification)
+            return render_template('notification.html', notification=notification, bookTitle = result[0])
 
         dd = datetime.datetime.strptime(
             str(dueDate), "%d/%m/%y") + datetime.timedelta(days=28)
@@ -274,7 +274,7 @@ def extendLoan():
             loanID) + "'"
         cur.execute(SQL_command, [dd])
         notification = result[0]['title'] + " has been successfully extended"
-    return render_template('notification.html', notification=notification)
+    return render_template('notification.html', notification=notification, bookTitle = result[0])
 
 
 @ app.route('/returnBook', methods=['GET', 'POST'])
@@ -308,7 +308,7 @@ def returnBook():
         # Calculate Fine if have
         # make sure that reservation working
         notification = result[0]['title'] + " has been returned!"
-    return render_template('notification.html', notification=notification)
+    return render_template('notification.html', notification=notification, bookTitle = result[0])
 
 
 @ app.route('/cancelReservation', methods=['GET', 'POST'])
@@ -323,7 +323,7 @@ def cancelReservation():
         # make sure that reservation working
         notification = " Your reservation for " + \
             result[0]['title'] + " has been cancelled!"
-    return render_template('notification.html', notification=notification)
+    return render_template('notification.html', notification=notification, bookTitle = result[0])
 
 
 @ app.route('/reserveToBorrow', methods=['GET', 'POST'])
@@ -337,14 +337,16 @@ def reserveToBorrow():
 
         # first check if you have more than 4 books
         if checkBorrowMoreThanFour(cur, session['userID']):
-            notification = "You already borrowed more than 4 books"
-            return render_template('notification.html', notification=notification)
+            notification = "Your request to borrow " + \
+            result[0]['title'] + " is unsuccessful. You already borrowed more than 4 books"
+            return render_template('notification.html', notification=notification, bookTitle = result[0])
 
         # check if the books is available
         print(checkBookAvail(cur, _id))
         if not checkBookAvail(cur, _id):
-            notification = "Currently the Book is not available and still on loan"
-            return render_template('notification.html', notification=notification)
+            notification = "Currently " + \
+            result[0]['title'] + " is not available and still on loan"
+            return render_template('notification.html', notification=notification, bookTitle = result[0])
 
         # end reservation
         # book is avail and less than four books
@@ -352,7 +354,7 @@ def reserveToBorrow():
 
     con.commit()
     notification = "Your borrowing for "+result[0]['title'] + " is successful!"
-    return render_template('notification.html', notification=notification)
+    return render_template('notification.html', notification=notification, bookTitle = result[0])
 
 ##############################################################################################################
 #                                   END OF ACCOUNT PAGE and Functionality

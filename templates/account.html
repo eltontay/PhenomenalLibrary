@@ -1,107 +1,144 @@
 {% include "navBar.html" %} {% block content %}
+<body>
+  <h1 class="text-center">Welcome Back!</h1>
+  <br />
+  <h2>Your Loaned Books</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Borrowed Date</th>
+        <th>Due Date</th>
+        <th>Check Overdue</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for book in borrowedbooks %}
+      <tr>
+        <td>{{book[0]['_id']}}</td>
+        <td class="align-middle">
+          <div>
+            <a href="/book/{{book[0]['_id']}}"
+              ><img
+                src="{{book[0]['thumbnailUrl']}}"
+                height="100"
+                style="padding: 10px; float: left"
+            /></a>
+          </div>
+          <div style="margin-top: 38px">
+            <a style="color: black" href="/book/{{book[0]['_id']}}"
+              >{{book[0]['title']}}</a
+            >
+          </div>
+        </td>
+        <td>{{currDates[loop.index-1][0] }}</td>
+        <td>{{currDates[loop.index-1][1] }}</td>
+        <td>{{overDue[loop.index-1] }}</td>
 
-<h1 class="text-center">Welcome to Your Account!</h1>
-<br />
-<h2>Your Loaned Books!</h2>
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Title</th>
-      <th>Borrowed Date</th>
-      <th>Due Date</th>
-      <th>Check Overdue</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for book in borrowedbooks %}
-    <tr>
-      <td>{{book[0]['_id']}}</td>
-      <td>{{book[0]['title']}}</td>
-      <td>{{currDates[loop.index-1][0] }}</td>
-      <td>{{currDates[loop.index-1][1] }}</td>
-      <td>{{overDue[loop.index-1] }}</td>
+        <td>
+          <form action="{{url_for('returnBook')}}" method="POST">
+            <button
+              value="{{book[0]['_id']}}"
+              name="_id"
+              type="submit"
+              width="100%"
+              class="btn btn-primary form-control viewmore"
+            >
+              Return Book
+            </button>
+          </form>
 
-      <td>
-        <form action="{{url_for('returnBook')}}" method="POST">
-          <button
-            value="{{book[0]['_id']}}"
-            name="_id"
-            type="submit"
-            width="100%"
-            class="btn btn-primary form-control viewmore"
-          >
-            Return Book
-          </button>
-        </form>
+          <form action="{{url_for('extendLoan')}}" method="POST">
+            <button
+              value="{{book[0]['_id']}}"
+              name="_id"
+              type="submit"
+              width="100%"
+              class="btn btn-primary form-control viewmore"
+            >
+              Extend Loan
+            </button>
+          </form>
+        </td>
+      </tr>
 
-        <form action="{{url_for('extendLoan')}}" method="POST">
-          <button
-            value="{{book[0]['_id']}}"
-            name="_id"
-            type="submit"
-            width="100%"
-            class="btn btn-primary form-control viewmore"
-          >
-            Extend Loan
-          </button>
-        </form>
-      </td>
-    </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
-    {% endfor %}
-  </tbody>
-</table>
+  <br />
+  <h2>Your Reserved Books</h2>
+  <br />
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th style="width: 60%">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for book in reservedBooks %}
+      <tr>
+        <td>{{book[0]['_id']}}</td>
+        <td>
+          <div>
+            <a href="/book/{{book[0]['_id']}}"
+              ><img
+                src="{{book[0]['thumbnailUrl']}}"
+                height="100"
+                style="padding: 10px; float: left"
+            /></a>
+          </div>
+          <div style="margin-top: 38px">
+            <a style="color: black" href="/book/{{book[0]['_id']}}"
+              >{{book[0]['title']}}</a
+            >
+          </div>
+        </td>
+        <td>{{book[0]['longDescription']}}</td>
+        <td>
+          <form action="{{url_for('reserveToBorrow')}}" method="POST">
+            <button
+              value="{{book[0]['_id']}}"
+              name="_id"
+              type="submit"
+              width="100%"
+              class="btn btn-primary form-control viewmore"
+            >
+              Loan Book
+            </button>
+          </form>
+          <form action="{{url_for('cancelReservation')}}" method="POST">
+            <button
+              value="{{book[0]['_id']}}"
+              name="_id"
+              type="submit"
+              width="100%"
+              class="btn btn-primary form-control viewmore"
+            >
+              Cancel reservation
+            </button>
+          </form>
+        </td>
+      </tr>
 
-<br />
-<h2>Your Reserved Books</h2>
-<br />
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Title</th>
-      <th style="width: 60%">Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for book in reservedBooks %}
-    <tr>
-      <td>{{book[0]['_id']}}</td>
-      <td>{{book[0]['title']}}</td>
-      <td>{{book[0]['longDescription']}}</td>
-      <td>
-        <form action="{{url_for('reserveToBorrow')}}" method="POST">
-          <button
-            value="{{book[0]['_id']}}"
-            name="_id"
-            type="submit"
-            width="100%"
-            class="btn btn-primary form-control viewmore"
-          >
-            Loan Book
-          </button>
-        </form>
-        <form action="{{url_for('cancelReservation')}}" method="POST">
-          <button
-            value="{{book[0]['_id']}}"
-            name="_id"
-            type="submit"
-            width="100%"
-            class="btn btn-primary form-control viewmore"
-          >
-            Cancel reservation
-          </button>
-        </form>
-      </td>
-    </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
-    {% endfor %}
-  </tbody>
-</table>
+  <br />
 
-<br />
+  <h2>Overdue Payments</h2>
+  <h3>Your outstanding fine amount is ${{fine}}</h3>
+</body>
+<style>
+  body {
+    background-image: url(../static/images/white-background-2.jpg);
+    background-size: cover;
+    background-attachment: fixed;
+  }
+</style>
 
-<h2>Overdue Payments</h2>
-<h3>Your outstanding fine amount is ${{fine}}</h3>
 {% endblock %}

@@ -1,9 +1,32 @@
-{% include "library.html" %} 
-{% block content %}
+{% include "navbar.html" %} {% block content %}
+<div>
+  <img
+    src="{{bookTitle['thumbnailUrl']}}"
+    height="250"
+    class="mx-auto d-block"
+    style="padding: 10px"
+  />
+</div>
+<h2 class="text-center" style="padding: 20px">{{notification}}</h2>
 
-
-<h2>{{notification}}</h2> 
-
-<a href="{{url_for('library')}}" class="btn btn-primary form-control viewmore">return to library </a>
+<a href="{{url_for('library')}}"
+  ><button
+    type="button"
+    width="100%"
+    class="btn btn-primary form-control viewmore"
+  >
+    Return to Library
+  </button>
+</a>
+<br />
+<a href="{{url_for('account')}}"
+  ><button
+    type="button"
+    width="100%"
+    class="btn btn-primary form-control viewmore"
+  >
+    View Account
+  </button>
+</a>
 
 {% endblock %}
