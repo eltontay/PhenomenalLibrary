@@ -3,30 +3,31 @@ from markupsafe import escape
 from datetime import date
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
-
-
-import sqlite3
+from flask_mysqldb import MySQL
 import datetime
 import pymongo
+import pymysql
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 
-#Database SQLAlchemy
-db = SQLAlchemy(app)
-engine = create_engine("mysql+pymysql://root:382522@localhost/library")
+# # Database SQLAlchemy
+engine = create_engine("mysql+pymysql://root:22dd22dd@localhost/library") ## change this to your password
 engine.connect()
 
-# Database configurationSQLITE
-conn = sqlite3.connect('library.db')
-print("Opened SQLdatabase successfully")
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = '22dd22dd' ## change this to your password
+app.config['MYSQL_DB'] = 'library'
+
+mysql = MySQL(app)
 
 
 ##### THIS LINK NEEDS TO CHANGE TO YOUR OWN LOCAL SERVER , DATABASE NAME , DATABASE COLLECTION #########
 # Localised Mongodb -> change the db to your database
 
-#Lundy COnnectionc
+# Lundy COnnectionc
 client = pymongo.MongoClient(
     "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
 
@@ -39,8 +40,8 @@ client = pymongo.MongoClient(
 #     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false"
 # )
 
-db = client["libraryDatabase"]
-collection = db["libraryCollection"]
+MongoDb = client["libraryDatabase"]
+collection = MongoDb["libraryCollection"]
 
 # books in specific
 
@@ -54,6 +55,8 @@ def navBar():
     return render_template('navBar.html')
 
 ##### START OF Library WORKS FINE #############
+
+
 @ app.route('/library', methods=['GET', 'POST'])
 def library():
     if 'userID' in session:
@@ -68,23 +71,24 @@ def library():
 @ app.route('/book/<int:bookid>', methods=['GET', 'POST'])
 def bookDetail(bookid):
     # get book detail
-    result = list(db.libraryCollection.find({'_id':  bookid}))
+    result = list(MongoDb.libraryCollection.find({'_id':  bookid}))
+    print(bookid)
     # get book availability
-    with sqlite3.connect("library.db") as con:
-        cur = con.cursor()
-
+    with engine.connect() as con:
         userHasBooks = str(bookid) in refreshBorrowlisiting(
-            cur) or str(bookid) in refreshReservelisiting(cur)
-
+            con) or str(bookid) in refreshReservelisiting(con)
         print(userHasBooks)
-
         SQL_command = "SELECT availability, reservedAvailability FROM book WHERE bookID = '" + \
-            str(bookid) + "'"
-        cur.execute(SQL_command)
-        rows = cur.fetchall()
-        for row in rows:
+        str(bookid) + "'"
+        print(SQL_command)
+        rs = con.execute(SQL_command)
+        print(rs)
+        for row in rs:
             availability = row[0]
             reserved = row[1]
+            print(row)
+            print(availability)
+            print(reserved)
     return render_template('bookDetail.html', result=result, availability=availability, reserved=reserved, userHasBooks=userHasBooks)
 
 
@@ -96,7 +100,6 @@ def results():
             bookAuthor = request.form['author']
             bookCategory = request.form['category']
             bookYear = request.form['year']
-            #result = db.libraryCollection.find({"title": bookSearch})
             if bookSearch == "" and bookAuthor == "" and bookCategory == "" and bookYear == "":
                 flash("Please input at least one query")
                 quit()
@@ -113,10 +116,10 @@ def results():
                     "$regex": bookCategory,
                     "$options": "i"
                 },
-                "publishedDate": 
+                "publishedDate":
                 {
                     "$regex": bookYear,
-                    "$options":"i"
+                    "$options": "i"
                 }
             })
             return render_template('results.html', bookSearch=bookSearch, result=result)
@@ -128,59 +131,56 @@ def results():
 @ app.route('/library/results/reservationSuccess', methods=['GET', 'POST'])
 def reservationSuccess():
     _id = request.form['_id']
-    result = list(db.libraryCollection.find({
+    result = list(MongoDb.libraryCollection.find({
         '_id':  int(_id)
     }))
-
-    with sqlite3.connect("library.db") as con:
-        cur = con.cursor()
+    with engine.connect() as con:
         # check if he reserved more than 4 books anot
-        SQL_command = "SELECT COUNT(endDate = '' or endDate = NULL) FROM reserve WHERE userID =  '" + \
+        SQL_command1 = "SELECT COUNT(endDate IS NULL) AS NumberOfBooks FROM reserve WHERE userID =  '" + \
             str(session['userID']) + "'"
-        print(SQL_command)
-        cur.execute(SQL_command)
-        numofBooks = cur.fetchall()
-        print(numofBooks[0][0])
-        if numofBooks[0][0] >= 4:
+        print(SQL_command1)
+        rs = con.execute(SQL_command1)
+        value = 0
+        for r in rs:
+            print(r[0])
+            value = r[0]
+        if value >= 4:
             return render_template('borrowFail.html', transactionType="reserve")
 
         # first update book status
-        SQL_command = "UPDATE Book SET reservedAvailability = FALSE WHERE bookID = '" + \
+        SQL_command2 = "UPDATE Book SET reservedAvailability = FALSE WHERE bookID = '" + \
             str(_id) + "'"
-        # print(SQL_command)
-        cur.execute(SQL_command)
+        print(SQL_command2)
+        con.execute(SQL_command2)
 
         # update loan status
-        d = date.today().strftime("%d/%m/%y")
-        SQL_command = "INSERT INTO reserve (userID, bookID, reserveDate, endDate) VALUES (?,?,?,?)"
-        loanEntry = (session['userID'], str(_id), d, '')
-        # print(SQL_command)
-        cur.execute(SQL_command, loanEntry)
-    con.commit()
-    notification = "Your reservation for " + \
-        result[0]['title'] + " is successful!"
-    return render_template('notification.html', notification=notification, bookTitle = result[0])
+        d = date.today().strftime("%Y-%m-%d")
+        SQL_command3 = "INSERT INTO reserve (userID, bookID, reserveDate, endDate) VALUES (" + str(session['userID']) + "," + str(_id) + ",'" + str(d) + "', NULL)"
+        # loanEntry = (session['userID'], str(_id), d)
+        print(SQL_command3)
+        con.execute(SQL_command3)   
+        notification = "Your reservation for " + \
+            result[0]['title'] + " is successful!"
+    return render_template('notification.html', notification=notification, bookTitle=result[0])
 
 
 @ app.route('/library/results/borrowSuccess', methods=['GET', 'POST'])
 def borrowSuccess():
     _id = request.form['_id']
-    result = list(db.libraryCollection.find({
+    result = list(MongoDb.libraryCollection.find({
         '_id':  int(_id)
     }))
-
-    with sqlite3.connect("library.db") as con:
-        cur = con.cursor()
-        if checkBorrowMoreThanFour(cur, session['userID']):
-            notification = "Your borrowing of "+result[0]['title'] + " is unsuccessful. You have reached your borrowing limit of 4 books."
-            return render_template('notification.html', notification=notification, bookTitle = result[0])
+    with engine.connect() as con:
+        if checkBorrowMoreThanFour(con, session['userID']):
+            notification = "Your borrowing of " + \
+                result[0]['title'] + \
+                " is unsuccessful. You have reached your borrowing limit of 4 books."
+            return render_template('notification.html', notification=notification, bookTitle=result[0])
 
         # first update book status
-        borrowBookBaseOnID(cur, _id)
-
-    con.commit()
+        borrowBookBaseOnID(con, _id)
     notification = "Your borrowing of "+result[0]['title'] + " is successful!"
-    return render_template('notification.html', notification=notification, bookTitle = result[0])
+    return render_template('notification.html', notification=notification, bookTitle=result[0])
 
 
 ##############################################################################################################
@@ -194,68 +194,61 @@ def borrowSuccess():
 
 @ app.route('/account', methods=['GET', 'POST'])
 def account():
-    with sqlite3.connect("library.db") as con:
-        cur = con.cursor()
-        currBooksID = refreshBorrowlisiting(cur)
+    with engine.connect() as con:
+        currBooksID = refreshBorrowlisiting(con)
         borrowedbooks = []
-        currDates = refreshDateslisting(cur)
-        today = date.today().strftime("%d/%m/%y")
+        currDates = refreshDateslisting(con)
+        today = date.today().strftime("%Y-%m-%d")
         overDue = []
         running = 0
         for book in currBooksID:
             borrowedbooks.append(
-                list(db.libraryCollection.find({'_id':  int(book)})))
-            d1 = datetime.datetime.strptime(currDates[running][1], "%d/%m/%y")
-            d2 = datetime.datetime.strptime(today, "%d/%m/%y")
+                list(MongoDb.libraryCollection.find({'_id':  int(book)})))
+            d1 = datetime.datetime.strptime(str(currDates[running][1]), "%Y-%m-%d")
+            d2 = datetime.datetime.strptime(str(today), "%Y-%m-%d")
             if ((d2-d1).days > 0):
                 overDue.append('Overdue')
                 # check if fine has been added, if not then add
-                if(refreshFineListing(cur)):
-                    SQL_command = "INSERT INTO fine (userID,fineCreationDate,fineAmount) VALUES (?,?,?)"
-                    fineEntry = (session['userID'], d2, 1)
-                    cur.execute(SQL_command, fineEntry)
+                if(refreshFineListing(con)):
+                    SQL_command = "INSERT INTO fine (userID,fineCreationDate,fineAmount) VALUES (" + str(session['userID']) + ",'" + str(d2) + "'," + str(1) + ")"
+                    con.execute(SQL_command)
             else:
                 overDue.append('Not Overdue')
             running += 1
-        currReservedID = refreshReservelisiting(cur)
+        currReservedID = refreshReservelisiting(con)
         reservedBooks = []
         for book in currReservedID:
             reservedBooks.append(
-                list(db.libraryCollection.find({'_id':  int(book)})))
-        fine = calculateFine(cur)
-
-    con.commit()
+                list(MongoDb.libraryCollection.find({'_id':  int(book)})))
+        fine = calculateFine(con)
     return render_template('account.html', borrowedbooks=borrowedbooks, reservedBooks=reservedBooks, currDates=currDates, overDue=overDue, fine=fine)
 
 
 @ app.route('/extendLoan', methods=['GET', 'POST'])
 def extendLoan():
     _id = request.form['_id']
-    result = list(db.libraryCollection.find({
+    result = list(MongoDb.libraryCollection.find({
         '_id':  int(_id)
     }))
 
-    with sqlite3.connect("library.db") as con:
-        cur = con.cursor()
+    with engine.connect() as con:
 
         # check if can extend Loan
-        SQL_command = "SELECT reservedAvailability from book WHERE bookID = '" + \
+        SQL_command1 = "SELECT reservedAvailability from book WHERE bookID = '" + \
             str(_id) + "'"
-        cur.execute(SQL_command)
-        rows = cur.fetchall()
-        for row in rows:
+        rs1 = con.execute(SQL_command1)
+        for row in rs1:
             ISreserved = row[0]
 
         if not ISreserved:
             notification = "Sorry, this book has been reserved and the loan cannot be extended"
-            return render_template('notification.html', notification=notification, bookTitle = result[0])
+            return render_template('notification.html', notification=notification, bookTitle=result[0])
 
-        SQL_command = "SELECT loanID, dueDate, borrowDate from loan WHERE userID = '" + session['userID'] + "'" \
+        SQL_command2 = "SELECT loanID, dueDate, borrowDate from loan WHERE userID = '" + session['userID'] + "'" \
             "AND bookID = '" + str(_id) + "'" \
-            "AND returnDate = '' "
-        cur.execute(SQL_command)
-        rows = cur.fetchall()
-        for row in rows:
+            "AND returnDate IS NULL "
+        rs2 = con.execute(SQL_command2)
+        for row in rs2:
             loanID = row[0]
             dueDate = row[1]
             borrowDate = row[2]
@@ -263,98 +256,90 @@ def extendLoan():
         # check if it has been extended before
         if days_between(borrowDate, dueDate):
             notification = "Sorry, this book has been extended before"
-            return render_template('notification.html', notification=notification, bookTitle = result[0])
+            return render_template('notification.html', notification=notification, bookTitle=result[0])
 
-        dd = datetime.datetime.strptime(
-            str(dueDate), "%d/%m/%y") + datetime.timedelta(days=28)
-        dd = dd.strftime("%d/%m/%y")
+        dd = datetime.datetime.strptime(str(dueDate), "%Y-%m-%d") + datetime.timedelta(days=28)
+        dd = dd.strftime("%Y-%m-%d")
 
         # update date base on ID
-        SQL_command = "UPDATE loan SET dueDate = (?) WHERE loanID = '" + str(
+        SQL_command3 = "UPDATE loan SET dueDate = (?) WHERE loanID = '" + str(
             loanID) + "'"
-        cur.execute(SQL_command, [dd])
+        con.execute(SQL_command3, [dd])
         notification = result[0]['title'] + " has been successfully extended"
-    return render_template('notification.html', notification=notification, bookTitle = result[0])
+    return render_template('notification.html', notification=notification, bookTitle=result[0])
 
 
 @ app.route('/returnBook', methods=['GET', 'POST'])
 def returnBook():
     _id = request.form['_id']
-    result = list(db.libraryCollection.find({
+    result = list(MongoDb.libraryCollection.find({
         '_id':  int(_id)
     }))
-
-    with sqlite3.connect("library.db") as con:
-        cur = con.cursor()
+    with engine.connect() as con:
         # Get Loan ID
         SQL_command = "SELECT loanID from loan WHERE userID = '" + session['userID'] + "'" \
             "AND bookID = '" + str(_id) + "'" \
-            "AND (returnDate = '' or returnDate = NULL) "
-        cur.execute(SQL_command)
-        rows = cur.fetchall()
-        for row in rows:
+            "AND returnDate IS NULL"
+        rs= con.execute(SQL_command)
+        for row in rs:
             loanID = row[0]
 
         # update date base on ID
         SQL_command = "UPDATE loan SET returnDate = CURRENT_TIMESTAMP WHERE loanID = '" + \
             str(loanID) + "'"
-        cur.execute(SQL_command)
+        con.execute(SQL_command)
 
         # Update the return Date
         SQL_command = "UPDATE book SET availability = TRUE WHERE bookID = '" + \
             str(_id) + "'"
-        cur.execute(SQL_command)
+        con.execute(SQL_command)
 
         # Calculate Fine if have
         # make sure that reservation working
         notification = result[0]['title'] + " has been returned!"
-    return render_template('notification.html', notification=notification, bookTitle = result[0])
+    return render_template('notification.html', notification=notification, bookTitle=result[0])
 
 
 @ app.route('/cancelReservation', methods=['GET', 'POST'])
 def cancelReservation():
     _id = request.form['_id']
-    result = list(db.libraryCollection.find({
+    result = list(MongoDb.libraryCollection.find({
         '_id':  int(_id)
     }))
-    with sqlite3.connect("library.db") as con:
-        cur = con.cursor()
-        cancelReservationBaseOnIp(cur, _id)
+    with engine.connect() as con:
+        cancelReservationBaseOnIp(con, _id)
         # make sure that reservation working
         notification = " Your reservation for " + \
             result[0]['title'] + " has been cancelled!"
-    return render_template('notification.html', notification=notification, bookTitle = result[0])
+    return render_template('notification.html', notification=notification, bookTitle=result[0])
 
 
 @ app.route('/reserveToBorrow', methods=['GET', 'POST'])
 def reserveToBorrow():
     _id = request.form['_id']
-    result = list(db.libraryCollection.find({
+    result = list(MongoDb.libraryCollection.find({
         '_id':  int(_id)
     }))
-    with sqlite3.connect("library.db") as con:
-        cur = con.cursor()
-
-        # first check if you have more than 4 books
-        if checkBorrowMoreThanFour(cur, session['userID']):
+    with engine.connect() as con:
+    # first check if you have more than 4 books
+        if checkBorrowMoreThanFour(con, session['userID']):
             notification = "Your request to borrow " + \
-            result[0]['title'] + " is unsuccessful. You already borrowed more than 4 books"
-            return render_template('notification.html', notification=notification, bookTitle = result[0])
+                result[0]['title'] + \
+                " is unsuccessful. You already borrowed more than 4 books"
+            return render_template('notification.html', notification=notification, bookTitle=result[0])
 
         # check if the books is available
-        print(checkBookAvail(cur, _id))
-        if not checkBookAvail(cur, _id):
+        print(checkBookAvail(con, _id))
+        if not checkBookAvail(con, _id):
             notification = "Currently " + \
-            result[0]['title'] + " is not available and still on loan"
-            return render_template('notification.html', notification=notification, bookTitle = result[0])
+                result[0]['title'] + " is not available and still on loan"
+            return render_template('notification.html', notification=notification, bookTitle=result[0])
 
         # end reservation
         # book is avail and less than four books
-        borrowBookBaseOnID(cur, _id)
-
-    con.commit()
-    notification = "Your borrowing for "+result[0]['title'] + " is successful!"
-    return render_template('notification.html', notification=notification, bookTitle = result[0])
+        borrowBookBaseOnID(con, _id)
+        notification = "Your borrowing for "+result[0]['title'] + " is successful!"
+    return render_template('notification.html', notification=notification, bookTitle=result[0])
 
 ##############################################################################################################
 #                                   END OF ACCOUNT PAGE and Functionality
@@ -372,14 +357,12 @@ def signup():
         try:
             username = request.form['userID']
             # check if the username is in use before
-            with sqlite3.connect("library.db") as con:
-                cur = con.cursor()
+            with engine.connect() as con:
                 SQL_command = "SELECT userName FROM userTable WHERE userName = '" + \
                     str(username) + "'"
-                cur.execute(SQL_command)
-                rows = cur.fetchall()
+                rs = con.execute(SQL_command)
                 sessionID = ""
-                for row in rows:
+                for row in rs:
                     sessionID = row[0]
                     print(sessionID)
                 if sessionID != "":
@@ -407,20 +390,12 @@ def signup():
                             postalCode)
 
             print(userNewEntry)
-
-            with sqlite3.connect("library.db") as con:
-                cur = con.cursor()
-                SQL_command = "INSERT INTO userTable (userName, userPassword, email, fName, lName, phoneNum, blockNum, streetName, unitNum, postalCode) VALUES (?,?,?,?,?,?,?,?,?,?)"
-                print(SQL_command)
-                cur.execute(SQL_command, userNewEntry)
-            con.commit()
-            print("success")
+            SQL_command = "INSERT INTO userTable (userName, userPassword, email, fName, lName, phoneNum, blockNum, streetName, unitNum, postalCode) VALUES (?,?,?,?,?,?,?,?,?,?)"
+            print(SQL_command)
+            con.execute(SQL_command, userNewEntry)
             return redirect(url_for('login'))
-
         except:
             print("help")
-
-        con.close()
     return render_template('signup.html')
 ##### End OF SignUp WORKS FINE #############
 
@@ -439,15 +414,13 @@ def login():
             if username == "" or userPassword == "":
                 flash("Email address of Password is empty!")
                 quit()
-            with sqlite3.connect("library.db") as con:
-                cur = con.cursor()
+            with engine.connect() as con:
                 SQL_command = "SELECT userID, userPassword FROM userTable WHERE userName = '" + \
                     str(username) + "'"
-                cur.execute(SQL_command)
-                rows = cur.fetchall()
+                rs = con.execute(SQL_command)
                 actualpassword = ""
                 sessionID = ""
-                for row in rows:
+                for row in rs:
                     sessionID = str(row[0])
                     actualpassword = row[1]
                 if str(actualpassword) == str(userPassword):
@@ -477,10 +450,9 @@ def logout():
 def calculateFine(cur):
     SQL_command = "SELECT fineAmount FROM fine WHERE userID = '" + \
         session['userID'] + "'"
-    cur.execute(SQL_command)
-    rows = cur.fetchall()
+    rs = cur.execute(SQL_command)
     total = 0
-    for row in rows:
+    for row in rs:
         total += row[0]
     return total
 
@@ -488,53 +460,50 @@ def calculateFine(cur):
 def refreshFineListing(cur):
     SQL_command = "SELECT fineCreationDate FROM fine WHERE userID = '" + \
         session['userID'] + "'"
-    cur.execute(SQL_command)
-    rows = cur.fetchall()
-    d = date.today().strftime("%d/%m/%y")
-    for row in rows:
+    rs = cur.execute(SQL_command)
+    d = date.today().strftime("%Y-%m-%d")
+    for row in rs:
         if (row[0] == d):
             return False
     return True
 
 
 def refreshDateslisting(cur):
-    SQL_command = "SELECT borrowDate, dueDate FROM loan WHERE (returnDate = '' or returnDate = NULL) AND userID = '" + \
+    SQL_command = "SELECT borrowDate, dueDate FROM loan WHERE returnDate IS NULL AND userID = '" + \
         session['userID'] + "'"
-    cur.execute(SQL_command)
-    rows = cur.fetchall()
+    rs = cur.execute(SQL_command)
     result = []
-    for row in rows:
+    for row in rs:
         result.append(list(row))
     return result
 
 
 def refreshBorrowlisiting(cur):
     # get additional information about the borrowed books they hold and store in a variable
-    SQL_command = "SELECT bookID FROM loan WHERE (returnDate = '' or returnDate = NULL) AND userID = '" + \
-        session['userID'] + "'"
-    cur.execute(SQL_command)
-    rows = cur.fetchall()
+    SQL_command = "SELECT bookID FROM loan WHERE returnDate IS NULL AND userID = " + str(session['userID'])
+    print(SQL_command)
+    rs = cur.execute(SQL_command)
     result = []
-    for row in rows:
+    for row in rs:
+        print(row[0])
         result.append(str(row[0]))
     return result
 
 
 def refreshReservelisiting(cur):
     # get additional information about the borrowed books they hold and store in a variable
-    SQL_command = "SELECT bookID FROM reserve WHERE (endDate = '' or endDate = NULL) AND userID = '" + \
+    SQL_command = "SELECT bookID FROM reserve WHERE endDate IS NULL AND userID = '" + \
         session['userID'] + "'"
-    cur.execute(SQL_command)
-    rows = cur.fetchall()
+    rs = cur.execute(SQL_command)
     result = []
-    for row in rows:
+    for row in rs:
         result.append(str(row[0]))
     return result
 
 
 def days_between(d1, d2):
-    d1 = datetime.datetime.strptime(str(d1), "%d/%m/%y")
-    d2 = datetime.datetime.strptime(str(d2), "%d/%m/%y")
+    d1 = datetime.datetime.strptime(str(d1), "%Y-%m-%d")
+    d2 = datetime.datetime.strptime(str(d2), "%Y-%m-%d")
     return (abs((d2 - d1).days) > 50)
 
 
@@ -542,9 +511,8 @@ def checkBookAvail(cur, _id):
     # first count how many books the brother got borrowed
     SQL_command = "SELECT availability FROM book WHERE bookID = '" + \
         str(_id) + "'"
-    cur.execute(SQL_command)
-    rows = cur.fetchall()
-    for row in rows:
+    rs = cur.execute(SQL_command)
+    for row in rs:
         avail = row[0]
     return avail
 
@@ -553,10 +521,9 @@ def cancelReservationBaseOnIp(cur, _id):
     # Get Loan ID
     SQL_command = "SELECT reserveID from reserve WHERE userID = '" + session['userID'] + "'" \
         "AND bookID = '" + str(_id) + "'" \
-        "AND (endDate = '' or endDate = NULL)"
-    cur.execute(SQL_command)
-    rows = cur.fetchall()
-    for row in rows:
+        "AND endDate IS NULL"
+    rs = cur.execute(SQL_command)
+    for row in rs:
         reserveID = row[0]
 
     # update on reserve table
@@ -572,12 +539,14 @@ def cancelReservationBaseOnIp(cur, _id):
 
 def checkBorrowMoreThanFour(cur, id):
     # first count how many books the brother got borrowed
-    SQL_command = "SELECT COUNT(returnDate)  FROM loan WHERE userID =  '" + \
-        str(id) + "' AND (returnDate = '' or returnDate = NULL)"
+    SQL_command = "SELECT COUNT(returnDate IS NULL)  FROM loan WHERE userID =  '" + \
+        str(id) + "'"
     print(SQL_command)
-    cur.execute(SQL_command)
-    numofBooks = cur.fetchall()
-    return (numofBooks[0][0] >= 4)
+    rs = cur.execute(SQL_command)
+    result = 0
+    for r in rs:
+        result = r[0]
+    return (result >= 4)
 
 
 def borrowBookBaseOnID(cur, _id):
@@ -585,15 +554,13 @@ def borrowBookBaseOnID(cur, _id):
         str(_id) + "'"
     cur.execute(SQL_command)
     # update loan status
-    d = date.today().strftime("%d/%m/%y")
-    dd = datetime.datetime.strptime(
-        d, "%d/%m/%y") + datetime.timedelta(days=28)
-    dd = dd.strftime("%d/%m/%y")
+    d = date.today().strftime("%Y-%m-%d")
+    dd = datetime.datetime.strptime("'" + d + "'", "%Y-%m-%d") + datetime.timedelta(days=28)
+    dd = dd.strftime("%Y-%m-%d")
 
-    SQL_command = "INSERT INTO loan (userID, bookID, borrowDate, dueDate, returnDate) VALUES (?,?,?,?,?)"
-    loanEntry = (session['userID'], str(_id), d, dd, '')
-    # print(SQL_command)
-    cur.execute(SQL_command, loanEntry)
+    SQL_command = "INSERT INTO loan (userID, bookID, borrowDate, dueDate, returnDate) VALUES (" + session['userID'] + "," + str(_id) + ",'" + d + "','" + dd + "', NULL)"
+    print(SQL_command)
+    cur.execute(SQL_command)
 
 
 if __name__ == '__main__':
