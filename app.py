@@ -56,11 +56,10 @@ collection = MongoDb["libraryCollection"]
 @ app.route('/library', methods=['GET', 'POST'])
 def library():
     if 'userID' in session:
+        admin = False
         if (session['admin'] == 1):
             admin = True
-            return render_template('library.html',admin=admin)
-        else:
-            return render_template('library.html')
+        return render_template('library.html',admin=admin)
     if request.method == 'POST':
         bookSearch = request.form['bookSearch']
         return redirect(url_for('results', bookSearch=bookSearch))
@@ -70,7 +69,10 @@ def library():
 
 @ app.route('/usersOverview',methods=['GET','POST'])
 def usersOverview():
-    return render_template('usersOverview.html')
+    admin = False
+    if (session['admin'] == 1):
+        admin = True
+    return render_template('usersOverview.html',admin=admin)
 
 
 @ app.route('/book/<int:bookid>', methods=['GET', 'POST'])
@@ -94,11 +96,17 @@ def bookDetail(bookid):
             print(row)
             print(availability)
             print(reserved)
-    return render_template('bookDetail.html', result=result, availability=availability, reserved=reserved, userHasBooks=userHasBooks)
+    admin = False
+    if (session['admin']==1):
+        admin=True
+    return render_template('bookDetail.html', result=result, availability=availability, reserved=reserved, userHasBooks=userHasBooks,admin=admin)
 
 
 @app.route('/library/results', methods=['GET', 'POST'])
 def results():
+    admin = False
+    if (session['admin']==1):
+        admin=True
     with engine.connect() as con:
         bookSearch = request.form['bookSearch']
         bookAuthor = request.form['author']
@@ -146,8 +154,8 @@ def results():
                     rs3 = con.execute(SQL_command3)
                     for i in rs3:
                         availReserve.append("Not Available to reserve! Book will be available from " + str(i[0]))
-        return render_template('results.html', bookSearch=bookSearch, result=result,availReserve=availReserve)
-    return render_template('library.html')
+        return render_template('results.html', bookSearch=bookSearch, result=result,availReserve=availReserve,admin=admin)
+    return render_template('library.html',admin=admin)
 
 
 @ app.route('/library/results/reservationSuccess', methods=['GET', 'POST'])
@@ -156,6 +164,9 @@ def reservationSuccess():
     result = list(MongoDb.libraryCollection.find({
         '_id':  int(_id)
     }))
+    admin = False
+    if (session['admin']==1):
+        admin=True
     with engine.connect() as con:
         # check if he reserved more than 4 books anot
         SQL_command1 = "SELECT COUNT(endDate IS NULL) AS NumberOfBooks FROM reserve WHERE userID =  '" + \
@@ -183,7 +194,7 @@ def reservationSuccess():
         con.execute(SQL_command3)   
         notification = "Your reservation for " + \
             result[0]['title'] + " is successful!"
-    return render_template('notification.html', notification=notification, bookTitle=result[0])
+    return render_template('notification.html', notification=notification, bookTitle=result[0],admin=admin)
 
 
 @ app.route('/library/results/borrowSuccess', methods=['GET', 'POST'])
@@ -192,17 +203,20 @@ def borrowSuccess():
     result = list(MongoDb.libraryCollection.find({
         '_id':  int(_id)
     }))
+    admin = False
+    if (session['admin']==1):
+        admin=True
     with engine.connect() as con:
         if checkBorrowMoreThanFour(con, session['userID']):
             notification = "Your borrowing of " + \
                 result[0]['title'] + \
                 " is unsuccessful. You have reached your borrowing limit of 4 books."
-            return render_template('notification.html', notification=notification, bookTitle=result[0])
+            return render_template('notification.html', notification=notification, bookTitle=result[0],admin=admin)
 
         # first update book status
         borrowBookBaseOnID(con, _id)
     notification = "Your borrowing of "+result[0]['title'] + " is successful!"
-    return render_template('notification.html', notification=notification, bookTitle=result[0])
+    return render_template('notification.html', notification=notification, bookTitle=result[0],admin=admin)
 
 
 ##############################################################################################################
@@ -243,7 +257,10 @@ def account():
             reservedBooks.append(
                 list(MongoDb.libraryCollection.find({'_id':  int(book)})))
         fine = calculateFine(con)
-    return render_template('account.html', borrowedbooks=borrowedbooks, reservedBooks=reservedBooks, currDates=currDates, overDue=overDue, fine=fine)
+    admin = False
+    if (session['admin']==1):
+        admin=True
+    return render_template('account.html', borrowedbooks=borrowedbooks, reservedBooks=reservedBooks, currDates=currDates, overDue=overDue, fine=fine,admin=admin)
 
 
 @ app.route('/extendLoan', methods=['GET', 'POST'])
@@ -252,7 +269,9 @@ def extendLoan():
     result = list(MongoDb.libraryCollection.find({
         '_id':  int(_id)
     }))
-
+    admin = False
+    if (session['admin']==1):
+        admin=True
     with engine.connect() as con:
 
         # check if can extend Loan
@@ -264,7 +283,7 @@ def extendLoan():
 
         if not ISreserved:
             notification = "Sorry, this book has been reserved and the loan cannot be extended"
-            return render_template('notification.html', notification=notification, bookTitle=result[0])
+            return render_template('notification.html', notification=notification, bookTitle=result[0],admin=admin)
 
         SQL_command2 = "SELECT loanID, dueDate, borrowDate from loan WHERE userID = '" + session['userID'] + "'" \
             "AND bookID = '" + str(_id) + "'" \
@@ -278,7 +297,7 @@ def extendLoan():
         # check if it has been extended before
         if days_between(borrowDate, dueDate):
             notification = "Sorry, this book has been extended before"
-            return render_template('notification.html', notification=notification, bookTitle=result[0])
+            return render_template('notification.html', notification=notification, bookTitle=result[0],admin=admin)
 
         dd = datetime.datetime.strptime(str(dueDate), "%Y-%m-%d") + datetime.timedelta(days=28)
         dd = dd.strftime("%Y-%m-%d")
@@ -288,7 +307,7 @@ def extendLoan():
             loanID) + "'"
         con.execute(SQL_command3, [dd])
         notification = result[0]['title'] + " has been successfully extended"
-    return render_template('notification.html', notification=notification, bookTitle=result[0])
+    return render_template('notification.html', notification=notification, bookTitle=result[0],admin=admin)
 
 
 @ app.route('/returnBook', methods=['GET', 'POST'])
@@ -297,6 +316,9 @@ def returnBook():
     result = list(MongoDb.libraryCollection.find({
         '_id':  int(_id)
     }))
+    admin = False
+    if (session['admin']==1):
+        admin=True
     with engine.connect() as con:
         # Get Loan ID
         SQL_command = "SELECT loanID from loan WHERE userID = '" + session['userID'] + "'" \
@@ -319,7 +341,7 @@ def returnBook():
         # Calculate Fine if have
         # make sure that reservation working
         notification = result[0]['title'] + " has been returned!"
-    return render_template('notification.html', notification=notification, bookTitle=result[0])
+    return render_template('notification.html', notification=notification, bookTitle=result[0],admin=admin)
 
 
 @ app.route('/cancelReservation', methods=['GET', 'POST'])
@@ -328,12 +350,15 @@ def cancelReservation():
     result = list(MongoDb.libraryCollection.find({
         '_id':  int(_id)
     }))
+    admin = False
+    if (session['admin']==1):
+        admin=True
     with engine.connect() as con:
         cancelReservationBaseOnIp(con, _id)
         # make sure that reservation working
         notification = " Your reservation for " + \
             result[0]['title'] + " has been cancelled!"
-    return render_template('notification.html', notification=notification, bookTitle=result[0])
+    return render_template('notification.html', notification=notification, bookTitle=result[0],admin=admin)
 
 
 @ app.route('/reserveToBorrow', methods=['GET', 'POST'])
@@ -342,26 +367,29 @@ def reserveToBorrow():
     result = list(MongoDb.libraryCollection.find({
         '_id':  int(_id)
     }))
+    admin = False
+    if (session['admin']==1):
+        admin=True
     with engine.connect() as con:
     # first check if you have more than 4 books
         if checkBorrowMoreThanFour(con, session['userID']):
             notification = "Your request to borrow " + \
                 result[0]['title'] + \
                 " is unsuccessful. You already borrowed more than 4 books"
-            return render_template('notification.html', notification=notification, bookTitle=result[0])
+            return render_template('notification.html', notification=notification, bookTitle=result[0],admin=admin)
 
         # check if the books is available
         print(checkBookAvail(con, _id))
         if not checkBookAvail(con, _id):
             notification = "Currently " + \
                 result[0]['title'] + " is not available and still on loan"
-            return render_template('notification.html', notification=notification, bookTitle=result[0])
+            return render_template('notification.html', notification=notification, bookTitle=result[0],admin=admin)
 
         # end reservation
         # book is avail and less than four books
         borrowBookBaseOnID(con, _id)
         notification = "Your borrowing for "+result[0]['title'] + " is successful!"
-    return render_template('notification.html', notification=notification, bookTitle=result[0])
+    return render_template('notification.html', notification=notification, bookTitle=result[0],admin=admin)
 
 ##############################################################################################################
 #                                   END OF ACCOUNT PAGE and Functionality

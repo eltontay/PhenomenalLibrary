@@ -1,4 +1,5 @@
-{% include "navBar.html" %} {% block content %}
+{% extends "base.html" %} {% if admin %} {% include "navBarAdmin.html" %} {%
+else %} {% include "navBar.html" %} {% endif %}{% block content %}
 
 <h1>{{booktitle}} has been returned!</h1>
 

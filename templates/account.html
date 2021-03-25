@@ -1,4 +1,5 @@
-{% include "navBar.html" %} {% block content %}
+{% extends "base.html" %} {% if admin %} {% include "navBarAdmin.html" %} {%
+else %} {% include "navBar.html" %} {% endif %} {% block content %}
 <body>
   <h1 class="text-center">Welcome Back!</h1>
   <br />

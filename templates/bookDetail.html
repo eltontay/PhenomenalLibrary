@@ -1,4 +1,6 @@
-{% include "navBar.html" %} {% block content %} {% for i in result %}
+{% extends "base.html" %} {% if admin %} {% include "navBarAdmin.html" %} {%
+else %} {% include "navBar.html" %} {% endif %}{% block content %} {% for i in
+result %}
 <body>
   <div class="bookpic">
     <img

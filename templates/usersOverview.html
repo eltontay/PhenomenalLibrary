@@ -1,3 +1,4 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} {% if admin %} {% include "navBarAdmin.html" %} {%
+else %} {% include "navBar.html" %} {% endif %}{% block content %}
 <h1>Users Overview</h1>
 {% endblock %}
