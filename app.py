@@ -94,37 +94,54 @@ def bookDetail(bookid):
 
 @app.route('/library/results', methods=['GET', 'POST'])
 def results():
-    if request.method == 'POST':
-        try:
-            bookSearch = request.form['bookSearch']
-            bookAuthor = request.form['author']
-            bookCategory = request.form['category']
-            bookYear = request.form['year']
-            if bookSearch == "" and bookAuthor == "" and bookCategory == "" and bookYear == "":
-                flash("Please input at least one query")
-                quit()
-            result = collection.find({
-                "title": {
-                    "$regex": bookSearch,
-                    "$options": "i"
-                },
-                "authors": {
-                    "$regex": bookAuthor,
-                    "$options": "i"
-                },
-                "categories": {
-                    "$regex": bookCategory,
-                    "$options": "i"
-                },
-                "publishedDate":
-                {
-                    "$regex": bookYear,
-                    "$options": "i"
-                }
-            })
-            return render_template('results.html', bookSearch=bookSearch, result=result)
-        except Exception as e:
-            print(e)
+    with engine.connect() as con:
+        bookSearch = request.form['bookSearch']
+        bookAuthor = request.form['author']
+        bookCategory = request.form['category']
+        bookYear = request.form['year']
+        if bookSearch == "" and bookAuthor == "" and bookCategory == "" and bookYear == "":
+            flash("Please input at least one query")
+            quit()
+        availReserve = []
+        result = list(collection.find({
+            "title": {
+                "$regex": bookSearch,
+                "$options": "i"
+            },
+            "authors": {
+                "$regex": bookAuthor,
+                "$options": "i"
+            },
+            "categories": {
+                "$regex": bookCategory,
+                "$options": "i"
+            },
+            "publishedDate":
+            {
+                "$regex": bookYear,
+                "$options": "i"
+            }
+        }))
+        for r in result:
+            print(r['_id'])
+            SQL_command1 = "SELECT availability, reservedAvailability FROM book WHERE bookID = '" + str(r['_id']) + "'"
+            rs1 = con.execute(SQL_command1)
+            for row in rs1:
+                if (row[0] == 1):
+                    availReserve.append("Available to book!")
+                elif (row[1] == 1):
+                    SQL_command2 = "SELECT dueDate FROM loan WHERE bookID = '" + str(r['_id']) + "'"
+                    print(SQL_command2)
+                    rs2 = con.execute(SQL_command2)
+                    for i in rs2:
+                        availReserve.append("Available to reserve! Book will be available from " + str(i[0]))
+                else :
+                    SQL_command3 = "SELECT dueDate FROM loan WHERE bookID = '" + str(r['_id']) + "'"
+                    print(SQL_command3)
+                    rs3 = con.execute(SQL_command3)
+                    for i in rs3:
+                        availReserve.append("Not Available to reserve! Book will be available from " + str(i[0]))
+        return render_template('results.html', bookSearch=bookSearch, result=result,availReserve=availReserve)
     return render_template('library.html')
 
 

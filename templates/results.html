@@ -20,7 +20,7 @@
           <a style="color: black" href="/book/{{i['_id']}}">{{i['title']}}</a>
         </td>
         <td>{{i['shortDescription']}}</td>
-        <td></td>
+        <td>{{availReserve[loop.index-1]}}</td>
       </tr>
       {% endfor %}
     </tbody>
