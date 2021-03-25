@@ -50,22 +50,27 @@ collection = MongoDb["libraryCollection"]
 #                                   START OF ACCOUNT PAGE and Functionality
 ##############################################################################################################
 
-@app.route('/navBar')
-def navBar():
-    return render_template('navBar.html')
-
 ##### START OF Library WORKS FINE #############
 
 
 @ app.route('/library', methods=['GET', 'POST'])
 def library():
     if 'userID' in session:
-        return render_template('library.html')
+        if (session['admin'] == 1):
+            admin = True
+            return render_template('library.html',admin=admin)
+        else:
+            return render_template('library.html')
     if request.method == 'POST':
         bookSearch = request.form['bookSearch']
         return redirect(url_for('results', bookSearch=bookSearch))
     return redirect(url_for('login'))
 ##### END OF library WORKS FINE #############
+
+
+@ app.route('/usersOverview',methods=['GET','POST'])
+def usersOverview():
+    return render_template('usersOverview.html')
 
 
 @ app.route('/book/<int:bookid>', methods=['GET', 'POST'])
@@ -371,13 +376,13 @@ def reserveToBorrow():
 @ app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        try:
-            username = request.form['userID']
-            # check if the username is in use before
-            with engine.connect() as con:
-                SQL_command = "SELECT userName FROM userTable WHERE userName = '" + \
+        with engine.connect() as con:
+            try:
+                username = request.form['userID']
+                # check if the username is in use before
+                SQL_command1 = "SELECT userName FROM userTable WHERE userName = '" + \
                     str(username) + "'"
-                rs = con.execute(SQL_command)
+                rs = con.execute(SQL_command1)
                 sessionID = ""
                 for row in rs:
                     sessionID = row[0]
@@ -385,34 +390,35 @@ def signup():
                 if sessionID != "":
                     flash("Username in use already!")
                     quit()
-            email = request.form['email']
-            userPassword = request.form['userPassword']
-            fName = request.form['fName']
-            lName = request.form['lName']
-            phoneNum = request.form['phoneNum']
-            blockNum = request.form['blockNum']
-            streetName = request.form['streetName']
-            unitNum = request.form['unitNum']
-            postalCode = request.form['postalCode']
+                email = request.form['email']
+                userPassword = request.form['userPassword']
+                fName = request.form['fName']
+                lName = request.form['lName']
+                phoneNum = request.form['phoneNum']
+                blockNum = request.form['blockNum']
+                streetName = request.form['streetName']
+                unitNum = request.form['unitNum']
+                postalCode = request.form['postalCode']
 
-            userNewEntry = (username,
-                            userPassword,
-                            email,
-                            fName,
-                            lName,
-                            phoneNum,
-                            blockNum,
-                            streetName,
-                            unitNum,
-                            postalCode)
+                userNewEntry = (username,
+                                userPassword,
+                                email,
+                                fName,
+                                lName,
+                                phoneNum,
+                                blockNum,
+                                streetName,
+                                unitNum,
+                                postalCode,
+                                '0')
 
-            print(userNewEntry)
-            SQL_command = "INSERT INTO userTable (userName, userPassword, email, fName, lName, phoneNum, blockNum, streetName, unitNum, postalCode) VALUES (?,?,?,?,?,?,?,?,?,?)"
-            print(SQL_command)
-            con.execute(SQL_command, userNewEntry)
-            return redirect(url_for('login'))
-        except:
-            print("help")
+                print(userNewEntry)
+                SQL_command2 = "INSERT INTO userTable (userName, userPassword, email, fName, lName, phoneNum, blockNum, streetName, unitNum, postalCode, admin) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+                print(SQL_command2)
+                con.execute(SQL_command2, userNewEntry)
+                return redirect(url_for('login'))
+            except:
+                print("help") 
     return render_template('signup.html')
 ##### End OF SignUp WORKS FINE #############
 
@@ -432,16 +438,19 @@ def login():
                 flash("Email address of Password is empty!")
                 quit()
             with engine.connect() as con:
-                SQL_command = "SELECT userID, userPassword FROM userTable WHERE userName = '" + \
+                SQL_command = "SELECT userID, userPassword, admin FROM userTable WHERE userName = '" + \
                     str(username) + "'"
                 rs = con.execute(SQL_command)
                 actualpassword = ""
                 sessionID = ""
+                admin = ""
                 for row in rs:
                     sessionID = str(row[0])
                     actualpassword = row[1]
+                    admin = row[2]
                 if str(actualpassword) == str(userPassword):
                     session['userID'] = sessionID
+                    session['admin'] = admin
                     return redirect(url_for('library'))
                 else:
                     flash("wrong password or username")
