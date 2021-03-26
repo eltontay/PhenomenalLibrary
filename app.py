@@ -237,30 +237,45 @@ def account():
         today = date.today().strftime("%Y-%m-%d")
         overDue = []
         running = 0
+        overDueTotal = 0
+        numOverDueBooks = 0
+        d2 = datetime.datetime.strptime(str(today), "%Y-%m-%d")
         for book in currBooksID:
             borrowedbooks.append(
                 list(MongoDb.libraryCollection.find({'_id':  int(book)})))
             d1 = datetime.datetime.strptime(str(currDates[running][1]), "%Y-%m-%d")
-            d2 = datetime.datetime.strptime(str(today), "%Y-%m-%d")
-            if ((d2-d1).days > 0):
+            print("borrow date is " + str(currDates[running][0]) + " , due date is " + str(currDates[running][1]))
+            dvalue = (d2-d1).days
+            if (dvalue > 0):
                 overDue.append('Overdue')
-                # check if fine has been added, if not then add
-                if(refreshFineListing(con)):
-                    SQL_command = "INSERT INTO fine (userID,fineCreationDate,fineAmount) VALUES (" + str(session['userID']) + ",'" + str(d2) + "'," + str(1) + ")"
-                    con.execute(SQL_command)
+                overDueTotal += dvalue
+                numOverDueBooks += 1
             else:
                 overDue.append('Not Overdue')
             running += 1
+        #return number of fines already created, to cross check with number of overdued books
+        SQL_command = "SELECT COUNT(fineCreationDate < now()) from fine"
+        n = con.execute(SQL_command)
+        num = ""
+        for i in n:
+            num = i[0]
+        # if tally just update
+        if (numOverDueBooks == num) :
+            print("updating fines")
+            updateFines(con)
+        else :
+            print("adding fines")
+            SQL_command = "INSERT INTO fine (userID,fineCreationDate,fineAmount) VALUES (" + str(session['userID']) + ",'" + str(d2) + "'," + str(1) + ")"
+            updateFines(con)
         currReservedID = refreshReservelisiting(con)
         reservedBooks = []
         for book in currReservedID:
             reservedBooks.append(
                 list(MongoDb.libraryCollection.find({'_id':  int(book)})))
-        fine = calculateFine(con)
     admin = False
     if (session['admin']==1):
         admin=True
-    return render_template('account.html', borrowedbooks=borrowedbooks, reservedBooks=reservedBooks, currDates=currDates, overDue=overDue, fine=fine,admin=admin)
+    return render_template('account.html', borrowedbooks=borrowedbooks, reservedBooks=reservedBooks, currDates=currDates, overDue=overDue, fine=overDueTotal,admin=admin)
 
 
 @ app.route('/extendLoan', methods=['GET', 'POST'])
@@ -501,14 +516,19 @@ def logout():
 ##############################################################################################################
 
 
-def calculateFine(cur):
-    SQL_command = "SELECT fineAmount FROM fine WHERE userID = '" + \
+
+def updateFines(cur):
+    SQL_command = "SELECT fineID, fineCreationDate, fineAmount FROM fine WHERE userID = '" + \
         session['userID'] + "'"
     rs = cur.execute(SQL_command)
-    total = 0
-    for row in rs:
-        total += row[0]
-    return total
+    today = date.today().strftime("%Y-%m-%d")
+    d2 = datetime.datetime.strptime(str(today), "%Y-%m-%d")
+    for r in rs:
+        d1 = datetime.datetime.strptime(str(r[1]), "%Y-%m-%d")
+        amt = (d2-d1).days
+        print(amt)
+        SQL_command = "UPDATE fine SET fineAmount = " + str(amt) + " WHERE fineID = " + str(r[0])  
+        cur.execute(SQL_command)
 
 
 def refreshFineListing(cur):
@@ -520,7 +540,6 @@ def refreshFineListing(cur):
         if (row[0] == d):
             return False
     return True
-
 
 def refreshDateslisting(cur):
     SQL_command = "SELECT borrowDate, dueDate FROM loan WHERE returnDate IS NULL AND userID = '" + \
