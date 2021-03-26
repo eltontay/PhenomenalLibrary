@@ -358,6 +358,15 @@ def returnBook():
         notification = result[0]['title'] + " has been returned!"
     return render_template('notification.html', notification=notification, bookTitle=result[0],admin=admin)
 
+@ app.route('/payment',methods=['GET','POST'])
+def payment():
+    admin = False
+    if (session['admin']==1):
+        admin=True
+    amount = request.form['fine']
+    notification = "Your payment of $" + str(amount) + " is paid!"
+    return render_template('payment.html',notification=notification,admin=admin)
+
 
 @ app.route('/cancelReservation', methods=['GET', 'POST'])
 def cancelReservation():

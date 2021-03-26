@@ -1,0 +1,4 @@
+{% extends "base.html" %} {% if admin %} {% include "navBarAdmin.html" %} {%
+else %} {% include "navBar.html" %} {% endif %}{% block content %}
+<h2 class="text-center" style="padding: 20px">{{notification}}</h2>
+{% endblock %}
