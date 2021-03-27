@@ -72,6 +72,13 @@ def usersOverview():
     admin = False
     if (session['admin'] == 1):
         admin = True
+    with engine.connect() as con:
+        # display all current book borrowings
+        SQL_command = "SELECT bookID, userID, borrowDate FROM loan WHERE returnDate IS NULL"
+        # display all current book reservations
+        SQL_command = "SELECT bookID, userID, reserveDate FROM reserve WHERE endDate IS NULL"
+        # display all users with unpaid fines
+        SQL_command = ""
     return render_template('usersOverview.html',admin=admin)
 
 
@@ -240,6 +247,7 @@ def account():
         overDueTotal = 0
         numOverDueBooks = 0
         d2 = datetime.datetime.strptime(str(today), "%Y-%m-%d")
+        
         for book in currBooksID:
             borrowedbooks.append(
                 list(MongoDb.libraryCollection.find({'_id':  int(book)})))
@@ -248,25 +256,26 @@ def account():
             dvalue = (d2-d1).days
             if (dvalue > 0):
                 overDue.append('Overdue')
-                overDueTotal += dvalue
+                overDueTotal += dvalue # running tally of total fine amount to be updated in fine
                 numOverDueBooks += 1
             else:
                 overDue.append('Not Overdue')
             running += 1
-        #return number of fines already created, to cross check with number of overdued books
-        SQL_command = "SELECT COUNT(fineCreationDate < now()) from fine"
-        n = con.execute(SQL_command)
-        num = ""
-        for i in n:
-            num = i[0]
-        # if tally just update
-        if (numOverDueBooks == num) :
-            print("updating fines")
-            updateFines(con)
-        else :
-            print("adding fines")
-            SQL_command = "INSERT INTO fine (userID,fineCreationDate,fineAmount) VALUES (" + str(session['userID']) + ",'" + str(d2) + "'," + str(1) + ")"
-            updateFines(con)
+
+        if (overDueTotal > 0): # this means that there are overdue books
+            # first check if there are any fines that are issued to the user already (havent pay yet)
+            SQL_command = "SELECT COUNT(paid == 0) FROM fine WHERE userID = '" + session['userID'] + "'"
+            n = con.execute(SQL_command)
+            num = ""
+            for i in n:
+                num = i[0]
+            if (num == 1): # 1 means, there exist an outstanding fine, so just need to update
+                print("double checking that value is 1, value is " + str(num))
+                updateFines(con,overDueTotal)
+            else : # value should be 0, so just add a fine
+                print("double checking that value is 0, value is = " + str(num))
+                SQL_command = "INSERT INTO fine (userID,fineCreationDate,fineAmount) VALUES (" + str(session['userID']) + ",'" + str(d2) + "'," + str(overDueTotal) + ")"
+        
         currReservedID = refreshReservelisiting(con)
         reservedBooks = []
         for book in currReservedID:
@@ -545,17 +554,12 @@ def logout():
 
 
 
-def updateFines(cur):
-    SQL_command = "SELECT fineID, fineCreationDate, fineAmount FROM fine WHERE userID = '" + \
+def updateFines(cur,fineAmount):
+    SQL_command = "SELECT fineID FROM fine WHERE userID = '" + \
         session['userID'] + "'"
     rs = cur.execute(SQL_command)
-    today = date.today().strftime("%Y-%m-%d")
-    d2 = datetime.datetime.strptime(str(today), "%Y-%m-%d")
     for r in rs:
-        d1 = datetime.datetime.strptime(str(r[1]), "%Y-%m-%d")
-        amt = (d2-d1).days
-        print(amt)
-        SQL_command = "UPDATE fine SET fineAmount = " + str(amt) + " WHERE fineID = " + str(r[0])  
+        SQL_command = "UPDATE fine SET fineAmount = " + str(fineAmount) + " WHERE fineID = " + str(r[0])  
         cur.execute(SQL_command)
 
 
