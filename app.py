@@ -72,14 +72,26 @@ def usersOverview():
     admin = False
     if (session['admin'] == 1):
         admin = True
+    bookBorrow = []
+    bookReserve = []
+    bookUnpaid = []
     with engine.connect() as con:
         # display all current book borrowings
-        SQL_command = "SELECT bookID, userID, borrowDate FROM loan WHERE returnDate IS NULL"
+        SQL_command = "SELECT bookID, userID, borrowDate, dueDate FROM loan WHERE returnDate IS NULL"
+        rs1 = con.execute(SQL_command)
+        for r in rs1:
+            bookBorrow.append(r)
         # display all current book reservations
         SQL_command = "SELECT bookID, userID, reserveDate FROM reserve WHERE endDate IS NULL"
+        rs2 = con.execute(SQL_command)
+        for r in rs2:
+            bookReserve.append(r)
         # display all users with unpaid fines
-        SQL_command = ""
-    return render_template('usersOverview.html',admin=admin)
+        SQL_command = "SELECT userID, fineCreationDate, fineAmount FROM fine WHERE paid = '0'"
+        rs3 = con.execute(SQL_command)
+        for r in rs3:
+            bookUnpaid.append(r)
+    return render_template('usersOverview.html', bookBorrow=bookBorrow, bookReserve=bookReserve, bookUnpaid=bookUnpaid, admin=admin)
 
 
 @ app.route('/book/<int:bookid>', methods=['GET', 'POST'])
@@ -385,14 +397,17 @@ def payment():
             # update loan
             SQL_command = "UPDATE loan SET returnDate = CURRENT_TIMESTAMP WHERE loanID = '" + \
                         str(row[0]) + "'"
+            print(SQL_command)
             con.execute(SQL_command)
             # update book
             SQL_command = "UPDATE book SET availability = TRUE WHERE bookID = '" + \
             str(row[1]) + "'"
+            print(SQL_command)
             con.execute(SQL_command)
             # update fine
-            SQL_command = "UPDATE "
-
+            SQL_command = "UPDATE fine SET paid = '1' WHERE userID = '" + session['userID']
+            print(SQL_command)
+            con.execute(SQL_command)
         # update payment
         SQL_command = "INSERT INTO payment (paymentDate, paymentAmount, userID) VALUES ('" + str(d1) + "', '" + str(amount) + "','" + session['userID'] + "')"
         con.execute(SQL_command)

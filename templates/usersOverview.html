@@ -1,4 +1,63 @@
 {% extends "base.html" %} {% if admin %} {% include "navBarAdmin.html" %} {%
 else %} {% include "navBar.html" %} {% endif %}{% block content %}
 <h1>Users Overview</h1>
+<h2>Books Borrowed</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Book ID</th>
+      <th>User ID</th>
+      <th>Borrow Date</th>
+      <th>Due Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for book in bookBorrow %}
+    <tr>
+      <td>{{book[0]}}</td>
+      <td>{{book[1]}}</td>
+      <td>{{book[2]}}</td>
+      <td>{{book[3]}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<h2>Books Reserved</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Book ID</th>
+      <th>User ID</th>
+      <th>Reserve Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for book in bookReserve %}
+    <tr>
+      <td>{{book[0]}}</td>
+      <td>{{book[1]}}</td>
+      <td>{{book[2]}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<h2>Users with Unpaid Fines</h2>
+<table>
+  <thead>
+    <tr>
+      <th>User ID</th>
+      <th>Fine Creation Date</th>
+      <th>Fine Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for book in bookUnpaid %}
+    <tr>
+      <td>{{book[0]}}</td>
+      <td>{{book[1]}}</td>
+      <td>{{book[2]}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 {% endblock %}
