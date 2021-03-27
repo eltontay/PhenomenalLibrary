@@ -340,6 +340,7 @@ def returnBook():
             "AND bookID = '" + str(_id) + "'" \
             "AND returnDate IS NULL"
         rs= con.execute(SQL_command)
+        loanID = ""
         for row in rs:
             loanID = row[0]
 
@@ -360,10 +361,28 @@ def returnBook():
 
 @ app.route('/payment',methods=['GET','POST'])
 def payment():
+    amount = request.form['fine']
+    today = date.today().strftime("%Y-%m-%d")
+    d1 = datetime.datetime.strptime(str(today), "%Y-%m-%d")
     admin = False
     if (session['admin']==1):
         admin=True
-    amount = request.form['fine']
+    with engine.connect() as con:
+    # Get Loan ID
+        SQL_command = "SELECT loanID, bookID from loan WHERE userID = '" + session['userID'] +  "' AND returnDate IS NULL"
+        rs = con.execute(SQL_command)
+        for row in rs:
+            # update loan
+            SQL_command = "UPDATE loan SET returnDate = CURRENT_TIMESTAMP WHERE loanID = '" + \
+                        str(row[0]) + "'"
+            con.execute(SQL_command)
+            # update book
+            SQL_command = "UPDATE book SET availability = TRUE WHERE bookID = '" + \
+            str(row[1]) + "'"
+            con.execute(SQL_command)
+            # update payment
+        SQL_command = "INSERT INTO payment (paymentDate, paymentAmount, userID) VALUES ('" + str(d1) + "', '" + str(amount) + "','" + session['userID'] + "')"
+        con.execute(SQL_command)
     notification = "Your payment of $" + str(amount) + " is paid!"
     return render_template('payment.html',notification=notification,admin=admin)
 
