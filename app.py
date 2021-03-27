@@ -274,8 +274,9 @@ def account():
                 updateFines(con,overDueTotal)
             else : # value should be 0, so just add a fine
                 print("double checking that value is 0, value is = " + str(num))
-                SQL_command = "INSERT INTO fine (userID,fineCreationDate,fineAmount) VALUES (" + str(session['userID']) + ",'" + str(d2) + "'," + str(overDueTotal) + ")"
-        
+                SQL_command = "INSERT INTO fine (userID,fineCreationDate,fineAmount,paid) VALUES ('" + str(session['userID']) + "','" + str(d2) + "','" + str(overDueTotal) + "','" + str(0) + "')"
+                print(SQL_command)
+                con.execute(SQL_command)
         currReservedID = refreshReservelisiting(con)
         reservedBooks = []
         for book in currReservedID:
@@ -389,7 +390,10 @@ def payment():
             SQL_command = "UPDATE book SET availability = TRUE WHERE bookID = '" + \
             str(row[1]) + "'"
             con.execute(SQL_command)
-            # update payment
+            # update fine
+            SQL_command = "UPDATE "
+
+        # update payment
         SQL_command = "INSERT INTO payment (paymentDate, paymentAmount, userID) VALUES ('" + str(d1) + "', '" + str(amount) + "','" + session['userID'] + "')"
         con.execute(SQL_command)
     notification = "Your payment of $" + str(amount) + " is paid!"
