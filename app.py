@@ -247,7 +247,7 @@ def account():
         overDueTotal = 0
         numOverDueBooks = 0
         d2 = datetime.datetime.strptime(str(today), "%Y-%m-%d")
-        
+
         for book in currBooksID:
             borrowedbooks.append(
                 list(MongoDb.libraryCollection.find({'_id':  int(book)})))
@@ -264,7 +264,7 @@ def account():
 
         if (overDueTotal > 0): # this means that there are overdue books
             # first check if there are any fines that are issued to the user already (havent pay yet)
-            SQL_command = "SELECT COUNT(paid == 0) FROM fine WHERE userID = '" + session['userID'] + "'"
+            SQL_command = "SELECT COUNT(paid = 0) FROM fine WHERE userID = '" + session['userID'] + "'"
             n = con.execute(SQL_command)
             num = ""
             for i in n:
