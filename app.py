@@ -3,25 +3,12 @@ from markupsafe import escape
 from datetime import date
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
-from flask_mysqldb import MySQL
 import datetime
 import pymongo
 import pymysql
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
-
-
-# # Database SQLAlchemy
-engine = create_engine("mysql+pymysql://root:22dd22dd@localhost/library") ## change this to your password
-engine.connect()
-
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '22dd22dd' ## change this to your password
-app.config['MYSQL_DB'] = 'library'
-
-mysql = MySQL(app)
 
 
 ##### THIS LINK NEEDS TO CHANGE TO YOUR OWN LOCAL SERVER , DATABASE NAME , DATABASE COLLECTION #########
@@ -31,14 +18,24 @@ mysql = MySQL(app)
 client = pymongo.MongoClient(
     "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
 
+engine = create_engine("mysql+pymysql://root:password@localhost/library") ## change this to your password
+engine.connect()
+
+
 # Elton Connection
 # client = pymongo.MongoClient(
 #     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
+
+# engine = create_engine("mysql+pymysql://root:password@localhost/library") ## change this to your password
+# engine.connect()
 
 # #YX Connection
 # client = pymongo.MongoClient(
 #     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false"
 # )
+
+# engine = create_engine("mysql+pymysql://root:password@localhost/library") ## change this to your password
+# engine.connect()
 
 MongoDb = client["libraryDatabase"]
 collection = MongoDb["libraryCollection"]
@@ -512,9 +509,9 @@ def signup():
                                 '0')
 
                 print(userNewEntry)
-                SQL_command2 = "INSERT INTO userTable (userName, userPassword, email, fName, lName, phoneNum, blockNum, streetName, unitNum, postalCode, admin) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+                SQL_command2 = "INSERT INTO library.userTable (userName, userPassword, email, fName, lName, phoneNum, blockNum, streetName, unitNum, postalCode, admin) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                 print(SQL_command2)
-                con.execute(SQL_command2, userNewEntry)
+                print(con.execute(SQL_command2, userNewEntry))
                 return redirect(url_for('login'))
             except:
                 print("help") 
