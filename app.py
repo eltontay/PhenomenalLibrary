@@ -15,10 +15,10 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 # Localised Mongodb -> change the db to your database
 
 # Lundy COnnectionc
-client = pymongo.MongoClient(
-    "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
+# client = pymongo.MongoClient(
+#     "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
 
-engine = create_engine("mysql+pymysql://root:password@localhost/library") ## change this to your password
+engine = create_engine("mysql+pymysql://root:382522@localhost/library") ## change this to your password
 engine.connect()
 
 
@@ -30,9 +30,9 @@ engine.connect()
 # engine.connect()
 
 # #YX Connection
-# client = pymongo.MongoClient(
-#     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false"
-# )
+client = pymongo.MongoClient(
+    "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false"
+)
 
 # engine = create_engine("mysql+pymysql://root:password@localhost/library") ## change this to your password
 # engine.connect()
@@ -152,24 +152,25 @@ def results():
             }
         }))
         for r in result:
-            print(r['_id'])
             SQL_command1 = "SELECT availability, reservedAvailability FROM book WHERE bookID = '" + str(r['_id']) + "'"
             rs1 = con.execute(SQL_command1)
             for row in rs1:
+                print(row)
                 if (row[0] == 1):
-                    availReserve.append("Available to book!")
+                    availReserve.append("Available")
                 elif (row[1] == 1):
                     SQL_command2 = "SELECT dueDate FROM loan WHERE bookID = '" + str(r['_id']) + "'"
                     print(SQL_command2)
                     rs2 = con.execute(SQL_command2)
                     for i in rs2:
-                        availReserve.append("Available to reserve! Book will be available from " + str(i[0]))
+                        print(i)
+                        availReserve.append("Available for reservation. Book out on loan till " + str(i[0]))
                 else :
                     SQL_command3 = "SELECT dueDate FROM loan WHERE bookID = '" + str(r['_id']) + "'"
                     print(SQL_command3)
                     rs3 = con.execute(SQL_command3)
                     for i in rs3:
-                        availReserve.append("Not Available to reserve! Book will be available from " + str(i[0]))
+                        availReserve.append("Currently unavailable for reservation. Book out on loan till " + str(i[0]))
         return render_template('results.html', bookSearch=bookSearch, result=result,availReserve=availReserve,admin=admin)
     return render_template('library.html',admin=admin)
 
@@ -675,7 +676,7 @@ def borrowBookBaseOnID(cur, _id):
     cur.execute(SQL_command)
     # update loan status
     d = date.today().strftime("%Y-%m-%d")
-    dd = datetime.datetime.strptime("'" + d + "'", "%Y-%m-%d") + datetime.timedelta(days=28)
+    dd = datetime.datetime.strptime(d, "%Y-%m-%d") + datetime.timedelta(days=28)
     dd = dd.strftime("%Y-%m-%d")
 
     SQL_command = "INSERT INTO loan (userID, bookID, borrowDate, dueDate, returnDate) VALUES (" + session['userID'] + "," + str(_id) + ",'" + d + "','" + dd + "', NULL)"
