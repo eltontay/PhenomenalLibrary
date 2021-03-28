@@ -520,7 +520,6 @@ def signup():
 
 ##### START OF LOGIN WORKS FINE #############
 
-
 @ app.route('/')
 @ app.route('/login', methods=['GET', 'POST'])
 def login():
