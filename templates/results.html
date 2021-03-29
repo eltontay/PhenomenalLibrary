@@ -1,6 +1,6 @@
 {% include "library.html" %} {% block content %}
-<body>
-  <table id="resultTable" border="1" >
+<body class="lib">
+  <table id="resultTable" border="1">
     <thead>
       <tr style="background-color: #ffffff">
         <th>Image</th>
@@ -13,15 +13,16 @@
       {% for i in result %}
       <tr>
         <!--<td style='border:none;'>{{i['_id']}}</td>-->
-        <td style='border:none;'><a href="/book/{{i['_id']}}">
-          <img src="{{i['thumbnailUrl']}}" height="100"/>
-        </a>
-      </td>
-        <td style='border:none;'>
+        <td style="border: none">
+          <a href="/book/{{i['_id']}}">
+            <img src="{{i['thumbnailUrl']}}" height="100" />
+          </a>
+        </td>
+        <td style="border: none">
           <a style="color: black" href="/book/{{i['_id']}}">{{i['title']}}</a>
         </td>
-        <td style='border:none;'>{{i['shortDescription']}}</td>
-        <td style='border:none;'>{{availReserve[loop.index-1]}}</td>
+        <td style="border: none">{{i['shortDescription']}}</td>
+        <td style="border: none">{{availReserve[loop.index-1]}}</td>
       </tr>
       {% endfor %}
     </tbody>

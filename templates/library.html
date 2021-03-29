@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% if admin %} {% include "navBarAdmin.html" %} {%
 else %} {% include "navBar.html" %} {% endif %} {% block content %}
-<body>
+<body class="lib">
   <div class="jumbotron"></div>
   <nav class="navbar navbar-light bg-transparent">
     <div class="container-fluid">
@@ -66,13 +66,13 @@ else %} {% include "navBar.html" %} {% endif %} {% block content %}
 
 <script>
   function toggle_display() {
-    el = document.querySelector('#advanced_search');
+    el = document.querySelector("#advanced_search");
 
-    if (el.style.display == 'none') {
-      el.style.display = 'inline';
-      el.style.height = '100%';
+    if (el.style.display == "none") {
+      el.style.display = "inline";
+      el.style.height = "100%";
     } else {
-      el.style.display = 'none';
+      el.style.display = "none";
     }
   }
 </script>
