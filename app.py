@@ -129,54 +129,57 @@ def results():
     if (session['admin']==1):
         admin=True
     with engine.connect() as con:
-        bookSearch = request.form['bookSearch']
-        bookAuthor = request.form['author']
-        bookCategory = request.form['category']
-        bookYear = request.form['year']
-        if bookSearch == "" and bookAuthor == "" and bookCategory == "" and bookYear == "":
-            flash("Please input at least one query")
-            quit()
-        availReserve = []
-        result = list(collection.find({
-            "title": {
-                "$regex": bookSearch,
-                "$options": "i"
-            },
-            "authors": {
-                "$regex": bookAuthor,
-                "$options": "i"
-            },
-            "categories": {
-                "$regex": bookCategory,
-                "$options": "i"
-            },
-            "publishedDate":
-            {
-                "$regex": bookYear,
-                "$options": "i"
-            }
-        }))
-        for r in result:
-            SQL_command1 = "SELECT availability, reservedAvailability FROM book WHERE bookID = '" + str(r['_id']) + "'"
-            rs1 = con.execute(SQL_command1)
-            for row in rs1:
-                print(row)
-                if (row[0] == 1):
-                    availReserve.append("Available")
-                elif (row[1] == 1):
-                    SQL_command2 = "SELECT dueDate FROM loan WHERE bookID = '" + str(r['_id']) + "'"
-                    print(SQL_command2)
-                    rs2 = con.execute(SQL_command2)
-                    for i in rs2:
-                        print(i)
-                        availReserve.append("Available for reservation. Book out on loan till " + str(i[0]))
-                else :
-                    SQL_command3 = "SELECT dueDate FROM loan WHERE bookID = '" + str(r['_id']) + "'"
-                    print(SQL_command3)
-                    rs3 = con.execute(SQL_command3)
-                    for i in rs3:
-                        availReserve.append("Currently unavailable for reservation. Book out on loan till " + str(i[0]))
-        return render_template('results.html', bookSearch=bookSearch, result=result,availReserve=availReserve,admin=admin)
+        try: 
+            bookSearch = request.form['bookSearch']
+            bookAuthor = request.form['author']
+            bookCategory = request.form['category']
+            bookYear = request.form['year']
+            if bookSearch == "" and bookAuthor == "" and bookCategory == "" and bookYear == "":
+                flash("Please input at least one query")
+                quit()
+            availReserve = []
+            result = list(collection.find({
+                "title": {
+                    "$regex": bookSearch,
+                    "$options": "i"
+                },
+                "authors": {
+                    "$regex": bookAuthor,
+                    "$options": "i"
+                },
+                "categories": {
+                    "$regex": bookCategory,
+                    "$options": "i"
+                },
+                "publishedDate":
+                {
+                    "$regex": bookYear,
+                    "$options": "i"
+                }
+            }))
+            for r in result:
+                SQL_command1 = "SELECT availability, reservedAvailability FROM book WHERE bookID = '" + str(r['_id']) + "'"
+                rs1 = con.execute(SQL_command1)
+                for row in rs1:
+                    print(row)
+                    if (row[0] == 1):
+                        availReserve.append("Available")
+                    elif (row[1] == 1):
+                        SQL_command2 = "SELECT dueDate FROM loan WHERE bookID = '" + str(r['_id']) + "'"
+                        print(SQL_command2)
+                        rs2 = con.execute(SQL_command2)
+                        for i in rs2:
+                            print(i)
+                            availReserve.append("Available for reservation. Book out on loan till " + str(i[0]))
+                    else :
+                        SQL_command3 = "SELECT dueDate FROM loan WHERE bookID = '" + str(r['_id']) + "'"
+                        print(SQL_command3)
+                        rs3 = con.execute(SQL_command3)
+                        for i in rs3:
+                            availReserve.append("Currently unavailable for reservation. Book out on loan till " + str(i[0]))
+            return render_template('results.html', bookSearch=bookSearch, result=result,availReserve=availReserve,admin=admin)
+        except:
+            print("help")
     return render_template('library.html',admin=admin)
 
 
