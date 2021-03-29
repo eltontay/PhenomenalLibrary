@@ -1,4 +1,5 @@
 from flask import Flask, session, redirect, flash, render_template, request, url_for
+import json
 from markupsafe import escape
 from datetime import date
 from flask_sqlalchemy import SQLAlchemy
@@ -115,7 +116,11 @@ def bookDetail(bookid):
     admin = False
     if (session['admin']==1):
         admin=True
-    return render_template('bookDetail.html', result=result, availability=availability, reserved=reserved, userHasBooks=userHasBooks,admin=admin)
+    result = result[0]
+    result['authors'] = (", ").join(result['authors'].strip("['").strip("']").split("', '"))
+    result['categories'] = (", ").join(result['categories'].strip("['").strip("']").split("', '"))
+    result['publishedDate'] = datetime.datetime.strptime(json.loads(result['publishedDate'].replace("'", '"'))['$date'][:-6], "%Y-%m-%dT%H:%M:%S.%f").strftime("%Y-%m-%d")
+    return render_template('bookDetail.html', result=[result], availability=availability, reserved=reserved, userHasBooks=userHasBooks,admin=admin)
 
 
 @app.route('/library/results', methods=['GET', 'POST'])
