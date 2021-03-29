@@ -3,137 +3,139 @@
 <a href="/"
 ><img class="mainLogo" id="signUpLogo"" src="{{url_for('static',
 filename='images/tempLogo.png')}}" align="middle" /></a>-->
-<h2 class="contentHead" style="color: #f0b90b">Welcome to Phenom Library</h2>
-<div id="signUpBody" class="card">
-  <div class="card-body">
-    <form action="{{ url_for('signup')}}" method="POST">
-      <div class="form-row">
+<body class="lib">
+  <h2 class="contentHead" style="color: #f0b90b">Welcome to Phenom Library</h2>
+  <div id="signUpBody" class="card">
+    <div class="card-body">
+      <form action="{{ url_for('signup')}}" method="POST">
+        <div class="form-row">
+          <div class="form-group col mb-2">
+            <input
+              type="text"
+              style="margin: 2% auto"
+              class="form-control signupformControl"
+              name="userID"
+              id="userID"
+              placeholder="Username"
+            />
+          </div>
+          <div class="form-group col mb-2">
+            <input
+              type="Email"
+              style="margin: 2% auto"
+              class="form-control signupformControl"
+              name="email"
+              id="email"
+              placeholder="Email"
+            />
+          </div>
+          <div class="form-group col mb-2">
+            <input
+              type="password"
+              style="margin: 2% auto"
+              class="form-control signupformControl"
+              name="userPassword"
+              id="userPassword"
+              placeholder="Password"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col mb-2">
+            <input
+              type="name"
+              style="margin: 2% auto"
+              class="form-control signupformControl"
+              name="fName"
+              id="fName"
+              placeholder="First Name"
+            />
+          </div>
+          <div class="form-group col mb-2">
+            <input
+              type="name"
+              style="margin: 2% auto"
+              class="form-control signupformControl"
+              name="lName"
+              id="lName"
+              placeholder="Last Name"
+            />
+          </div>
+        </div>
+        <div class="form-group col mb-2">
+          <input
+            type="number"
+            style="margin: 2% auto"
+            class="form-control signupformControl"
+            name="phoneNum"
+            id="phoneNum"
+            maxlength="8"
+            placeholder="Contact Number"
+            oninput="javascript: if (this.value.length > 8) this.value = this.value.slice(0, 8);"
+          />
+        </div>
         <div class="form-group col mb-2">
           <input
             type="text"
             style="margin: 2% auto"
             class="form-control signupformControl"
-            name="userID"
-            id="userID"
-            placeholder="Username"
+            name="streetName"
+            id="streetName"
+            placeholder="Street Name"
           />
         </div>
         <div class="form-group col mb-2">
           <input
-            type="Email"
+            type="text"
             style="margin: 2% auto"
             class="form-control signupformControl"
-            name="email"
-            id="email"
-            placeholder="Email"
+            name="blockNum"
+            id="blockNum"
+            placeholder="Block"
           />
         </div>
         <div class="form-group col mb-2">
           <input
-            type="password"
+            type="text"
             style="margin: 2% auto"
             class="form-control signupformControl"
-            name="userPassword"
-            id="userPassword"
-            placeholder="Password"
-          />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group col mb-2">
-          <input
-            type="name"
-            style="margin: 2% auto"
-            class="form-control signupformControl"
-            name="fName"
-            id="fName"
-            placeholder="First Name"
+            name="unitNum"
+            id="unitNum"
+            placeholder="Unit number"
           />
         </div>
         <div class="form-group col mb-2">
           <input
-            type="name"
+            type="number"
             style="margin: 2% auto"
             class="form-control signupformControl"
-            name="lName"
-            id="lName"
-            placeholder="Last Name"
+            name="postalCode"
+            id="postalCode"
+            maxlength="6"
+            oninput="javascript: if (this.value.length > 6) this.value = this.value.slice(0, 6);"
+            placeholder="Postal Code"
           />
         </div>
-      </div>
-      <div class="form-group col mb-2">
-        <input
-          type="number"
-          style="margin: 2% auto"
-          class="form-control signupformControl"
-          name="phoneNum"
-          id="phoneNum"
-          maxlength="8"
-          placeholder="Contact Number"
-          oninput="javascript: if (this.value.length > 8) this.value = this.value.slice(0, 8);"
-        />
-      </div>
-      <div class="form-group col mb-2">
-        <input
-          type="text"
-          style="margin: 2% auto"
-          class="form-control signupformControl"
-          name="streetName"
-          id="streetName"
-          placeholder="Street Name"
-        />
-      </div>
-      <div class="form-group col mb-2">
-        <input
-          type="text"
-          style="margin: 2% auto"
-          class="form-control signupformControl"
-          name="blockNum"
-          id="blockNum"
-          placeholder="Block"
-        />
-      </div>
-      <div class="form-group col mb-2">
-        <input
-          type="text"
-          style="margin: 2% auto"
-          class="form-control signupformControl"
-          name="unitNum"
-          id="unitNum"
-          placeholder="Unit number"
-        />
-      </div>
-      <div class="form-group col mb-2">
-        <input
-          type="number"
-          style="margin: 2% auto"
-          class="form-control signupformControl"
-          name="postalCode"
-          id="postalCode"
-          maxlength="6"
-          oninput="javascript: if (this.value.length > 6) this.value = this.value.slice(0, 6);"
-          placeholder="Postal Code"
-        />
-      </div>
 
-      <div class="row">
-        <button
-          type="submit"
-          class="signupformControl btn btn-primary form-control"
-        >
-          Register
-        </button>
-      </div>
-      <div class="pi4wij-0 ctiubF"></div>
-      <p class="card-subtitle text-center">
-        Already Registered?
-        <a href="/" style="color: rgb(240, 185, 11); text-decoration: none"
-          >Log in</a
-        >
-      </p>
-      <br />
-    </form>
+        <div class="row">
+          <button
+            type="submit"
+            class="signupformControl btn btn-primary form-control"
+          >
+            Register
+          </button>
+        </div>
+        <div class="pi4wij-0 ctiubF"></div>
+        <p class="card-subtitle text-center">
+          Already Registered?
+          <a href="/" style="color: rgb(240, 185, 11); text-decoration: none"
+            >Log in</a
+          >
+        </p>
+        <br />
+      </form>
+    </div>
   </div>
-</div>
+</body>
 
 {% endblock %}
