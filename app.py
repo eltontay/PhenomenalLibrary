@@ -19,21 +19,21 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 # client = pymongo.MongoClient(
 #     "mongodb://127.0.0.1:27017/?compressors=zlib&gssapiServiceName=mongodb")
 
-engine = create_engine("mysql+pymysql://root:382522@localhost/library") ## change this to your password
+engine = create_engine("mysql+pymysql://root:22dd22dd@localhost/library") ## change this to your password
 engine.connect()
 
 
 # Elton Connection
-# client = pymongo.MongoClient(
-#     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
+client = pymongo.MongoClient(
+    "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
 
 # engine = create_engine("mysql+pymysql://root:password@localhost/library") ## change this to your password
 # engine.connect()
 
-# #YX Connection
-client = pymongo.MongoClient(
-    "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false"
-)
+# # #YX Connection
+# client = pymongo.MongoClient(
+#     "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false"
+# )
 
 # engine = create_engine("mysql+pymysql://root:password@localhost/library") ## change this to your password
 # engine.connect()
@@ -665,13 +665,14 @@ def cancelReservationBaseOnIp(cur, _id):
 
 def checkBorrowMoreThanFour(cur, id):
     # first count how many books the brother got borrowed
-    SQL_command = "SELECT COUNT(returnDate IS NULL)  FROM loan WHERE userID =  '" + \
-        str(id) + "'"
+    SQL_command = "SELECT COUNT(bookID)  FROM loan WHERE userID =  '" + \
+        str(id) + "' AND returnDate IS NULL"
     print(SQL_command)
     rs = cur.execute(SQL_command)
     result = 0
     for r in rs:
         result = r[0]
+    print(result)
     return (result >= 4)
 
 
