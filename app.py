@@ -321,9 +321,9 @@ def extendLoan():
         SQL_command1 = "SELECT reservedAvailability from book WHERE bookID = '" + \
             str(_id) + "'"
         rs1 = con.execute(SQL_command1)
+        print(SQL_command1)
         for row in rs1:
             ISreserved = row[0]
-
         if not ISreserved:
             notification = "Sorry, this book has been reserved and the loan cannot be extended"
             return render_template('notification.html', notification=notification, bookTitle=result[0],admin=admin)
@@ -331,6 +331,7 @@ def extendLoan():
         SQL_command2 = "SELECT loanID, dueDate, borrowDate from loan WHERE userID = '" + session['userID'] + "'" \
             "AND bookID = '" + str(_id) + "'" \
             "AND returnDate IS NULL "
+        print(SQL_command2)
         rs2 = con.execute(SQL_command2)
         for row in rs2:
             loanID = row[0]
@@ -344,11 +345,12 @@ def extendLoan():
 
         dd = datetime.datetime.strptime(str(dueDate), "%Y-%m-%d") + datetime.timedelta(days=28)
         dd = dd.strftime("%Y-%m-%d")
-
+        print(dd)
         # update date base on ID
-        SQL_command3 = "UPDATE loan SET dueDate = (?) WHERE loanID = '" + str(
+        SQL_command3 = "UPDATE loan SET dueDate = '" + str(dd) + "' WHERE loanID = '" + str(
             loanID) + "'"
-        con.execute(SQL_command3, [dd])
+        print(SQL_command3)
+        con.execute(SQL_command3)
         notification = result[0]['title'] + " has been successfully extended"
     return render_template('notification.html', notification=notification, bookTitle=result[0],admin=admin)
 
